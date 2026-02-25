@@ -9,7 +9,7 @@
         --primary: #4CAF50; --secondary: #FF9800; --bg: #f4f9f4; --text: #333; 
         --w: 120px; --h: 120px; --d: 120px; 
     }
-    body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
+    body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; overflow-x: hidden; }
     header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     
     .tabs { display: flex; justify-content: center; background-color: #388E3C; }
@@ -98,13 +98,14 @@
         <p style="text-align: center;">6つのマスを塗って、正しい展開図になるか判定しよう！</p>
         <div class="paint-grid" id="grid"></div>
         <div style="text-align: center; margin-top: 20px;">
-            <button onclick="checkNet()">判定する！</button>
+            <button onclick="checkNetWithSimulation()" style="background: #E91E63; box-shadow: 0 4px 0 #C2185B;">組み立てシミュレーション！</button>
             <button onclick="resetGrid()" style="background:#555; box-shadow:0 4px 0 #333;">ぜんぶ消す</button>
         </div>
         <div class="result" id="netResult"></div>
 
         <div id="three-container" style="width: 100%; max-width: 450px; height: 350px; margin: 20px auto; display: none; position: relative; border: 3px solid #FF9800; border-radius: 8px; background: #fff8e1; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <div id="success-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(244, 67, 54, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">⚪︎</div>
+            <div id="success-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(76, 175, 80, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">⚪︎</div>
+            <div id="fail-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(244, 67, 54, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">❌</div>
         </div>
     </div>
 
@@ -119,7 +120,7 @@
 <script src="questions.js"></script>
 
 <script>
-// --- 音を鳴らす機能 ---
+// 音とUIの基本機能はそのまま維持
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -136,13 +137,12 @@ function playSound(type) {
         gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); 
         osc.start(); osc.stop(audioCtx.currentTime + 0.4);
     } else if (type === 'error') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3); 
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.4);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); 
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
     }
 }
 
-// --- タブ切り替え ---
 function switchTab(tabId, btn) {
     playSound('click');
     document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
@@ -151,7 +151,6 @@ function switchTab(tabId, btn) {
     btn.classList.add('active');
 }
 
-// --- 3D立体の機能 ---
 let faceCount = 0;
 function countFace(element) {
     if (!element.classList.contains("counted")) {
@@ -168,48 +167,31 @@ function resetFaceCount() {
 const root = document.documentElement;
 const descText = document.getElementById("shapeDesc");
 
-function setCube(){
-    playSound('click');
-    root.style.setProperty('--w', '120px'); root.style.setProperty('--h', '120px'); root.style.setProperty('--d', '120px');
-    descText.innerText = "立方体：すべての辺の長さが同じです。";
-    resetFaceCount();
-}
-function setCuboid(){
-    playSound('click');
-    root.style.setProperty('--w', '160px'); root.style.setProperty('--h', '80px'); root.style.setProperty('--d', '120px');
-    descText.innerText = "直方体：縦、横、高さの長さが違います。";
-    resetFaceCount();
-}
+function setCube(){ playSound('click'); root.style.setProperty('--w', '120px'); root.style.setProperty('--h', '120px'); root.style.setProperty('--d', '120px'); descText.innerText = "立方体：すべての辺の長さが同じです。"; resetFaceCount(); }
+function setCuboid(){ playSound('click'); root.style.setProperty('--w', '160px'); root.style.setProperty('--h', '80px'); root.style.setProperty('--d', '120px'); descText.innerText = "直方体：縦、横、高さの長さが違います。"; resetFaceCount(); }
 
 const scene = document.getElementById("scene");
 const cube = document.getElementById("cube");
 let isDragging = false, startX, startY, currentRotX = -25, currentRotY = 30;
 
-scene.addEventListener("pointerdown", (e) => {
-    isDragging = true; startX = e.clientX; startY = e.clientY;
-    scene.setPointerCapture(e.pointerId);
-});
+scene.addEventListener("pointerdown", (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; scene.setPointerCapture(e.pointerId); });
 scene.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
     currentRotY += (e.clientX - startX) * 0.5; currentRotX -= (e.clientY - startY) * 0.5;
     cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
     startX = e.clientX; startY = e.clientY;
 });
-scene.addEventListener("pointerup", (e) => {
-    isDragging = false; scene.releasePointerCapture(e.pointerId);
-});
+scene.addEventListener("pointerup", (e) => { isDragging = false; scene.releasePointerCapture(e.pointerId); });
 
-// --- 展開図の判定機能 ---
+// --- 展開図のグリッド ---
 const grid = document.getElementById("grid");
 let gridData = Array(6).fill().map(() => Array(6).fill(0));
 
 for(let y=0; y<6; y++) {
     for(let x=0; x<6; x++) {
-        let div = document.createElement("div");
-        div.className = "cell";
+        let div = document.createElement("div"); div.className = "cell";
         div.onclick = () => {
-            playSound('click');
-            div.classList.toggle("active");
+            playSound('click'); div.classList.toggle("active");
             gridData[y][x] = div.classList.contains("active") ? 1 : 0;
         };
         grid.appendChild(div);
@@ -217,104 +199,65 @@ for(let y=0; y<6; y++) {
 }
 
 function resetGrid() {
-    playSound('click');
-    document.querySelectorAll('.cell').forEach(c => c.classList.remove("active"));
+    playSound('click'); document.querySelectorAll('.cell').forEach(c => c.classList.remove("active"));
     gridData = Array(6).fill().map(() => Array(6).fill(0));
     document.getElementById("netResult").innerText = "";
-    document.getElementById("three-container").style.display = "none"; // アニメも消す
+    document.getElementById("three-container").style.display = "none";
 }
 
-const validPatterns = new Set([
-    "0,1,0,0\n1,1,1,1\n0,1,0,0", "0,1,0,0\n1,1,1,1\n0,0,1,0", "0,1,0,0\n1,1,1,1\n0,0,0,1",
-    "1,0,0,0\n1,1,1,1\n0,0,1,0", "1,0,0,0\n1,1,1,1\n0,0,0,1", "1,0,0,0\n1,1,1,1\n1,0,0,0",
-    "1,1,0,0\n0,1,1,1\n0,1,0,0", "1,1,0,0\n0,1,1,1\n0,0,1,0", "1,1,0,0\n0,1,1,1\n0,0,0,1",
-    "1,1,0\n0,1,1\n0,0,1", "1,1,1,0,0\n0,0,1,1,1"
-]);
-
-function extractPattern(grid2D) {
-    let minX = 6, maxX = -1, minY = 6, maxY = -1, count = 0;
-    for(let y=0; y<6; y++) {
-        for(let x=0; x<6; x++) {
-            if(grid2D[y][x] === 1) {
-                if(x < minX) minX = x; if(x > maxX) maxX = x;
-                if(y < minY) minY = y; if(y > maxY) maxY = y;
-                count++;
-            }
-        }
-    }
-    if(count !== 6) return null; 
-    let result = [];
-    for(let y=minY; y<=maxY; y++) {
-        let row = [];
-        for(let x=minX; x<=maxX; x++) { row.push(grid2D[y][x]); }
-        result.push(row.join(","));
-    }
-    return result.join("\n");
-}
-
-function rotateArray(arr) {
-    let result = [];
-    let rows = arr.length, cols = arr[0].length;
-    for(let x=0; x<cols; x++) {
-        let newRow = [];
-        for(let y=rows-1; y>=0; y--) { newRow.push(arr[y][x]); }
-        result.push(newRow);
-    }
-    return result;
-}
-
-function flipArray(arr) { return arr.map(row => [...row].reverse()); }
-function stringToArray(str) { return str.split("\n").map(row => row.split(",").map(Number)); }
-function arrayToString(arr) { return arr.map(row => row.join(",")).join("\n"); }
-
-
-// 🌟 追加：ユーザーが塗った展開図から3Dを動的に作ってアニメーションする魔法の関数
+// 🌟🌟🌟 新しいシミュレーション判定アルゴリズム 🌟🌟🌟
 let threeRenderer, threeScene, threeCamera, animationId;
-function startDynamic3DAnimation() {
+
+function checkNetWithSimulation() {
+    const res = document.getElementById("netResult");
+    let cells = [];
+    for(let y=0; y<6; y++) for(let x=0; x<6; x++) if(gridData[y][x]) cells.push({x, y});
+    
+    // 1. マス目の数が6個かチェック
+    if(cells.length !== 6) {
+        res.innerText = `いま ${cells.length} コだよ。ぴったり6マス塗ってね。`;
+        res.style.color = "#F44336";
+        document.getElementById('three-container').style.display = 'none';
+        playSound('error');
+        return;
+    }
+
+    // Three.js空間の初期化
     const container = document.getElementById('three-container');
     container.style.display = 'block';
+    document.getElementById('success-mark').style.display = 'none';
+    document.getElementById('fail-mark').style.display = 'none';
     
-    // 中身をリセット
-    container.innerHTML = '<div id="success-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(244, 67, 54, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">⚪︎</div>';
+    if(!threeRenderer) {
+        threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        threeRenderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(threeRenderer.domElement);
+        threeScene = new THREE.Scene();
+        threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        threeCamera.position.set(0, 8, 12); threeCamera.lookAt(0, 0, 0);
+        threeScene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6); dirLight.position.set(5, 10, 7); threeScene.add(dirLight);
+    }
+    
+    // 既存のオブジェクトをクリア
+    while(threeScene.children.length > 2){ threeScene.remove(threeScene.children[2]); }
     if (animationId) cancelAnimationFrame(animationId);
 
-    // Three.jsの準備
-    threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    threeRenderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(threeRenderer.domElement);
-
-    threeScene = new THREE.Scene();
-    threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    threeCamera.position.set(0, 7, 10);
-    threeCamera.lookAt(0, 0, 0);
-
-    threeScene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    dirLight.position.set(5, 10, 7);
-    threeScene.add(dirLight);
-
-    // タイルの設定
     const s = 2; 
-    const mat = new THREE.MeshPhongMaterial({ color: 0x4CAF50, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x1B5E20, linewidth: 2 });
+    const mat = new THREE.MeshPhongMaterial({ color: 0x4FC3F7, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x0277BD, linewidth: 2 });
 
     function createMesh() {
-        const geo = new THREE.PlaneGeometry(s, s);
-        const mesh = new THREE.Mesh(geo, mat);
+        const geo = new THREE.PlaneGeometry(s, s); const mesh = new THREE.Mesh(geo, mat);
         mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), lineMat));
         return mesh;
     }
 
-    // 塗られたマスを探して、一番真ん中に近いものを「底面（基準）」にする
-    let cells = [];
-    for(let y=0; y<6; y++) for(let x=0; x<6; x++) if(gridData[y][x]) cells.push({x, y});
-    
-    let cx = cells.reduce((sum, c) => sum + c.x, 0) / 6;
-    let cy = cells.reduce((sum, c) => sum + c.y, 0) / 6;
+    // 2. BFSで展開図の繋がり（木構造）を作る
+    let cx = cells.reduce((sum, c) => sum + c.x, 0) / 6; let cy = cells.reduce((sum, c) => sum + c.y, 0) / 6;
     cells.sort((a,b) => (Math.pow(a.x-cx,2)+Math.pow(a.y-cy,2)) - (Math.pow(b.x-cx,2)+Math.pow(b.y-cy,2)));
     let rootCell = cells[0];
 
-    // 木構造を解析して展開図を3D空間に組み立てるアルゴリズム
     let visited = new Set([`${rootCell.x},${rootCell.y}`]);
     let queue = [ {cell: rootCell, parentMesh: null, dir: null} ];
     let rootMesh = createMesh();
@@ -322,167 +265,149 @@ function startDynamic3DAnimation() {
     threeScene.add(rootMesh);
     
     let hingeGroups = [];
+    let allMeshes = [rootMesh];
 
     while(queue.length > 0) {
         let {cell, parentMesh, dir} = queue.shift();
         let currentMesh = rootMesh;
         
         if (parentMesh) {
-            let hinge = new THREE.Group();
-            currentMesh = createMesh();
-            
-            // どこにくっついているかでヒンジ（蝶番）の位置と曲がる方向を変える
-            if (dir === 'right') { 
-                hinge.position.set(s/2, 0, 0); currentMesh.position.set(s/2, 0, 0); hinge.userData.rot = {y: -Math.PI/2, x:0};
-            } else if (dir === 'left') { 
-                hinge.position.set(-s/2, 0, 0); currentMesh.position.set(-s/2, 0, 0); hinge.userData.rot = {y: Math.PI/2, x:0};
-            } else if (dir === 'up') { 
-                hinge.position.set(0, s/2, 0); currentMesh.position.set(0, s/2, 0); hinge.userData.rot = {x: Math.PI/2, y:0};
-            } else if (dir === 'down') { 
-                hinge.position.set(0, -s/2, 0); currentMesh.position.set(0, -s/2, 0); hinge.userData.rot = {x: -Math.PI/2, y:0};
-            }
-            hinge.add(currentMesh); parentMesh.add(hinge); hingeGroups.push(hinge);
+            let hinge = new THREE.Group(); currentMesh = createMesh();
+            if (dir === 'right') { hinge.position.set(s/2, 0, 0); currentMesh.position.set(s/2, 0, 0); hinge.userData.rot = {y: -Math.PI/2, x:0}; }
+            else if (dir === 'left') { hinge.position.set(-s/2, 0, 0); currentMesh.position.set(-s/2, 0, 0); hinge.userData.rot = {y: Math.PI/2, x:0}; }
+            else if (dir === 'up') { hinge.position.set(0, s/2, 0); currentMesh.position.set(0, s/2, 0); hinge.userData.rot = {x: Math.PI/2, y:0}; }
+            else if (dir === 'down') { hinge.position.set(0, -s/2, 0); currentMesh.position.set(0, -s/2, 0); hinge.userData.rot = {x: -Math.PI/2, y:0}; }
+            hinge.add(currentMesh); parentMesh.add(hinge); hingeGroups.push(hinge); allMeshes.push(currentMesh);
         }
 
         const neighbors = [ {dx: 1, dy: 0, dir: 'right'}, {dx: -1, dy: 0, dir: 'left'}, {dx: 0, dy: -1, dir: 'up'}, {dx: 0, dy: 1, dir: 'down'} ];
         for(let n of neighbors) {
             let nx = cell.x + n.dx, ny = cell.y + n.dy;
             if (nx>=0 && nx<6 && ny>=0 && ny<6 && gridData[ny][nx] && !visited.has(`${nx},${ny}`)) {
-                visited.add(`${nx},${ny}`);
-                queue.push({cell: {x:nx, y:ny}, parentMesh: currentMesh, dir: n.dir});
+                visited.add(`${nx},${ny}`); queue.push({cell: {x:nx, y:ny}, parentMesh: currentMesh, dir: n.dir});
             }
         }
     }
 
+    // 全てのマスが繋がっているか（孤立していないか）チェック
+    if(visited.size !== 6) {
+        res.innerText = "❌ 面が繋がっていないところがあるよ！"; res.style.color = "#F44336"; playSound('error'); return;
+    }
+
+    // 🌟 3. Three.jsの行列計算を使って、組み立て後の「面の向き」をシミュレーション
+    // 一度すべてのヒンジを折りたたんだ状態にする
+    hingeGroups.forEach(h => { h.rotation.x = h.userData.rot.x; h.rotation.y = h.userData.rot.y; });
+    rootMesh.updateMatrixWorld(true);
+
+    let normals = new Set();
+    allMeshes.forEach(mesh => {
+        // 各面のローカルの「表向き(0,0,1)」が、ワールド空間でどの方向を向いているか計算
+        let normal = new THREE.Vector3(0, 0, 1);
+        normal.transformDirection(mesh.matrixWorld);
+        // 誤差をなくすため四捨五入して文字列化 (例: "1,0,0")
+        let key = `${Math.round(normal.x)},${Math.round(normal.y)},${Math.round(normal.z)}`;
+        normals.add(key);
+    });
+
+    // 6つの異なる向き（±X, ±Y, ±Z）が揃っていれば正解！
+    const isCorrect = (normals.size === 6);
+
+    // アニメーションのためにヒンジを平ら（0度）に戻す
+    hingeGroups.forEach(h => { h.rotation.x = 0; h.rotation.y = 0; });
+    rootMesh.updateMatrixWorld(true);
+
+    // テキスト結果表示
+    if (isCorrect) {
+        res.innerHTML = "✨ 組み立てられそう！みてみよう！"; res.style.color = "#4CAF50";
+    } else {
+        res.innerHTML = "💦 あれ？どこかが重なっちゃうかも…？"; res.style.color = "#F44336";
+    }
+
+    // 描画ループ開始
     const renderLoop = () => { animationId = requestAnimationFrame(renderLoop); threeRenderer.render(threeScene, threeCamera); };
     renderLoop();
 
-    // アニメーション実行
+    // 🌟 4. 結果に応じたアニメーション再生
     const tl = gsap.timeline({
         onComplete: () => {
-            document.getElementById('success-mark').style.display = 'block';
-            playSound('success'); // 完成時にもう一度鳴らす
+            if(isCorrect){ document.getElementById('success-mark').style.display = 'block'; playSound('success'); res.innerHTML = "⭕️ 大正解！立方体になったね！"; }
+            else { document.getElementById('fail-mark').style.display = 'block'; playSound('error'); res.innerHTML = "❌ 残念！面が重なってしまったよ。"; }
         }
     });
 
-    // 見やすいように全体を少し回転
-    tl.to(rootMesh.rotation, { z: Math.PI/4, duration: 1, ease: "power2.inOut" }, 0);
+    tl.to(rootMesh.rotation, { z: Math.PI/4, duration: 1, ease: "power2.inOut" }, 0); // 見やすく回転
 
-    // 面を順番にパタパタ折りたたむ
-    hingeGroups.forEach((hinge, index) => {
-        tl.to(hinge.rotation, { x: hinge.userData.rot.x, y: hinge.userData.rot.y, duration: 1.2, ease: "power2.inOut" }, index * 0.15);
-    });
-}
-
-
-function checkNet(){
-    let baseStr = extractPattern(gridData);
-    const res = document.getElementById("netResult");
-
-    if(!baseStr) {
-        let count = gridData.flat().filter(v => v === 1).length;
-        res.innerText = `いま ${count} コだよ。ぴったり6マス塗ってね。`;
-        res.style.color = "#F44336";
-        document.getElementById('three-container').style.display = 'none';
-        playSound('error');
-        return;
-    }
-
-    let currentArr = stringToArray(baseStr);
-    let isCorrect = false;
-
-    for(let i=0; i<4; i++) {
-        if(validPatterns.has(arrayToString(currentArr)) || validPatterns.has(arrayToString(flipArray(currentArr)))) {
-            isCorrect = true; break;
-        }
-        currentArr = rotateArray(currentArr);
-    }
-
-    if(isCorrect){
-        res.innerHTML = "⭕️ 正解！組み立ててみよう！<br><span style='font-size:0.9rem; color:#666;'>※アニメーションが始まります</span>"; 
-        res.style.color = "#4CAF50"; 
-        playSound('success');
-        
-        // 🌟 正解したら、アニメーションを開始！
-        setTimeout(startDynamic3DAnimation, 500);
-
+    if (isCorrect) {
+        // 【正解時】パタパタと綺麗に折りたたむ
+        hingeGroups.forEach((hinge, index) => {
+            tl.to(hinge.rotation, { x: hinge.userData.rot.x, y: hinge.userData.rot.y, duration: 1.0, ease: "power2.inOut" }, index * 0.15);
+        });
     } else {
-        res.innerText = "❌ ざんねん…この形は立体になりません。"; 
-        res.style.color = "#F44336"; 
-        document.getElementById('three-container').style.display = 'none';
-        playSound('error');
+        // 【不正解時】途中まで組み立ててから、バラバラに崩れ落ちる
+        // まず少しだけ折りたたむ動きを見せる
+        hingeGroups.forEach((hinge, index) => {
+            tl.to(hinge.rotation, { x: hinge.userData.rot.x * 0.8, y: hinge.userData.rot.y * 0.8, duration: 0.8, ease: "power1.inOut" }, index * 0.1);
+        });
+
+        // 重なった瞬間にバラバラに落ちる！
+        const dropDelay = hingeGroups.length * 0.1 + 0.5;
+        allMeshes.forEach((mesh) => {
+             gsap.to(mesh.position, {
+                 x: (Math.random() - 0.5) * 8, // ランダムに散らばる
+                 y: -10, // 下に落ちる
+                 z: (Math.random() - 0.5) * 8,
+                 duration: 1.5,
+                 ease: "power2.in",
+                 delay: dropDelay
+             });
+             gsap.to(mesh.rotation, {
+                 x: Math.random() * Math.PI * 4,
+                 y: Math.random() * Math.PI * 4,
+                 duration: 1.5,
+                 ease: "power2.in",
+                 delay: dropDelay
+             });
+        });
     }
 }
 
 // ==========================================
 // ✏️ クイズ機能（変更なし）
 // ==========================================
-let shuffledQuestions = [];
-let currentQuestionIndex = 0;
-let correctCount = 0;
-
+let shuffledQuestions = []; let currentQuestionIndex = 0; let correctCount = 0;
 function initQuiz() {
     const container = document.getElementById('questions-container');
-    if (typeof questionsData === 'undefined' || questionsData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:red; font-weight:bold;">問題が見つかりません。<br>questions.js の1行目が「const」になっているか確認してね！</p>';
-        return;
-    }
-    shuffledQuestions = [...questionsData].sort(() => Math.random() - 0.5);
-    currentQuestionIndex = 0; correctCount = 0;
-    renderSingleQuestion();
+    if (typeof questionsData === 'undefined' || questionsData.length === 0) { container.innerHTML = '<p style="text-align:center; color:red; font-weight:bold;">問題が見つかりません</p>'; return; }
+    shuffledQuestions = [...questionsData].sort(() => Math.random() - 0.5); currentQuestionIndex = 0; correctCount = 0; renderSingleQuestion();
 }
-
 function renderSingleQuestion() {
     const container = document.getElementById('questions-container');
     if (currentQuestionIndex >= shuffledQuestions.length) {
-        container.innerHTML = `<div class="question-box" style="text-align:center;"><h2 style="color:#E65100;">🎉 おつかれさま！ 🎉</h2><p>ぜんぶの問題がおわったよ！</p><p style="font-size: 1.5rem; font-weight:bold; color: #4CAF50;">せいかい： ${correctCount} / ${shuffledQuestions.length} もん</p><button onclick="initQuiz()" style="font-size: 1.1rem; padding: 10px 30px; margin-top:15px;">もういちど遊ぶ</button></div>`;
-        return;
+        container.innerHTML = `<div class="question-box" style="text-align:center;"><h2 style="color:#E65100;">🎉 おつかれさま！ 🎉</h2><p style="font-size: 1.5rem; font-weight:bold; color: #4CAF50;">せいかい： ${correctCount} / ${shuffledQuestions.length} もん</p><button onclick="initQuiz()" style="font-size: 1.1rem; padding: 10px 30px; margin-top:15px;">もういちど遊ぶ</button></div>`; return;
     }
     const q = shuffledQuestions[currentQuestionIndex];
-    let html = `<div class="question-box"><h4 style="color: #4CAF50; margin-top:0;">だい ${currentQuestionIndex + 1} もん <span style="font-size:0.9rem; color:#888;">(ぜんぶで ${shuffledQuestions.length} もん)</span></h4><h3 style="margin-top: 5px;">${q.title}</h3>${q.description ? `<p>${q.description}</p>` : ''}${q.svg ? `<div class="svg-container">${q.svg}</div>` : ''}`;
-    
+    let html = `<div class="question-box"><h4 style="color: #4CAF50; margin-top:0;">だい ${currentQuestionIndex + 1} もん</h4><h3 style="margin-top: 5px;">${q.title}</h3>${q.description ? `<p>${q.description}</p>` : ''}${q.svg ? `<div class="svg-container">${q.svg}</div>` : ''}`;
     q.subQuestions.forEach(sq => {
         html += `<p style="font-weight:bold;">${sq.text} </p><p>`;
-        if (sq.type === "select") {
-            html += `<select id="q_${sq.id}"><option value="">えらんでね</option>`;
-            sq.options.forEach(opt => { html += `<option value="${opt}">${opt}</option>`; });
-            html += `</select>`; if (sq.unit) html += ` ${sq.unit}`;
-        } else {
-            html += `<input type="number" id="q_${sq.id}">`; if (sq.unit) html += ` ${sq.unit}`;
-        }
+        if (sq.type === "select") { html += `<select id="q_${sq.id}"><option value="">えらんでね</option>`; sq.options.forEach(opt => { html += `<option value="${opt}">${opt}</option>`; }); html += `</select>`; if (sq.unit) html += ` ${sq.unit}`; } 
+        else { html += `<input type="number" id="q_${sq.id}">`; if (sq.unit) html += ` ${sq.unit}`; }
         html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
     });
-
     html += `<div style="text-align:center; margin-top:20px;" id="action-area"><button onclick="checkDynamicQ(${q.id})" style="font-size: 1.1rem; padding: 10px 30px;">こたえあわせ</button></div></div>`;
     container.innerHTML = html;
 }
-
 function checkDynamicQ(questionId) {
-    const question = shuffledQuestions.find(q => q.id === questionId);
-    if (!question) return;
+    const question = shuffledQuestions.find(q => q.id === questionId); if (!question) return;
     let allCorrect = true;
     question.subQuestions.forEach(sq => {
-        const inputEl = document.getElementById(`q_${sq.id}`);
-        const resEl = document.getElementById(`res_${sq.id}`);
-        if (inputEl.value.trim() === sq.answer) {
-            resEl.innerHTML = "⭕️ 正解！"; resEl.className = "feedback correct";
-        } else {
-            resEl.innerHTML = "❌ もういちど"; resEl.className = "feedback incorrect"; allCorrect = false;
-        }
+        const inputEl = document.getElementById(`q_${sq.id}`); const resEl = document.getElementById(`res_${sq.id}`);
+        if (inputEl.value.trim() === sq.answer) { resEl.innerHTML = "⭕️ 正解！"; resEl.className = "feedback correct"; } 
+        else { resEl.innerHTML = "❌ もういちど"; resEl.className = "feedback incorrect"; allCorrect = false; }
     });
-
     const actionArea = document.getElementById('action-area');
-    if(allCorrect) {
-        playSound('success'); correctCount++;
-        actionArea.innerHTML = `<button onclick="nextQuestion()" style="background:#4CAF50; font-size: 1.2rem; padding: 10px 30px; box-shadow: 0 4px 0 #388E3C;">つぎの問題へ ➡️</button>`;
-    } else {
-        playSound('error');
-        if (!document.getElementById('skip-btn')) {
-            actionArea.innerHTML += `<br><button id="skip-btn" onclick="skipQuestion()" style="background:#999; margin-top:15px; box-shadow: 0 4px 0 #666;">パスしてつぎへ ➡️</button>`;
-        }
-    }
+    if(allCorrect) { playSound('success'); correctCount++; actionArea.innerHTML = `<button onclick="nextQuestion()" style="background:#4CAF50; font-size: 1.2rem; padding: 10px 30px; box-shadow: 0 4px 0 #388E3C;">つぎの問題へ ➡️</button>`; } 
+    else { playSound('error'); if (!document.getElementById('skip-btn')) { actionArea.innerHTML += `<br><button id="skip-btn" onclick="skipQuestion()" style="background:#999; margin-top:15px; box-shadow: 0 4px 0 #666;">パスしてつぎへ ➡️</button>`; } }
 }
-
 function nextQuestion() { playSound('click'); currentQuestionIndex++; renderSingleQuestion(); }
 function skipQuestion() { playSound('click'); currentQuestionIndex++; renderSingleQuestion(); }
 window.addEventListener("DOMContentLoaded", initQuiz);
