@@ -5,38 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>さわってわかる！直方体と立方体マスター</title>
 <style>
-:root { --primary: #4CAF50; --secondary: #FF9800; --bg: #f4f9f4; --text: #333; --w: 120px; --h: 120px; --d: 120px; }
-body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
-header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-.tabs { display: flex; justify-content: center; background-color: #388E3C; }
-.tab-btn { background: none; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: 0.3s; margin: 0; }
-.tab-btn.active { background-color: var(--secondary); border-bottom: 4px solid #E65100; }
-.container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.mode-section { display: none; } .mode-section.active { display: block; animation: fadeIn 0.5s; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.controls { text-align: center; margin-bottom: 10px; }
-.desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; min-height: 1.5em; margin-bottom: 20px; }
-.scene { width: 280px; height: 280px; margin: 20px auto; perspective: 800px; cursor: grab; }
-.scene:active { cursor: grabbing; }
-.cube { position: relative; width: var(--w); height: var(--h); margin: auto; transform-style: preserve-3d; transform: rotateX(-25deg) rotateY(30deg); transition: width 0.5s, height 0.5s; }
-.face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: all 0.5s; }
-.face:hover { background: rgba(100, 150, 255, 0.9); } .face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
-.front  { width: var(--w); height: var(--h); transform: translateZ(calc(var(--d) / 2)); }
-.back   { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); }
-.top    { width: var(--w); height: var(--d); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); }
-.bottom { width: var(--w); height: var(--d); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
-.left   { width: var(--d); height: var(--h); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
-.right  { width: var(--d); height: var(--h); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
-button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold;}
-button:active { transform: translateY(4px); box-shadow: none; }
-.paint-grid { display: grid; grid-template-columns: repeat(6, 40px); gap: 3px; justify-content: center; margin-top: 20px; }
-.cell { width: 40px; height: 40px; background: #ddd; cursor: pointer; border-radius: 4px; } .cell.active { background: #4CAF50; }
-.result { font-size: 18px; margin-top: 15px; font-weight: bold; text-align: center; min-height: 27px; }
-.question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 30px; border-radius: 4px; user-select: text; }
-.question-box h3 { margin-top: 0; color: #E65100; }
-.svg-container { text-align: center; margin: 15px 0; background: white; padding: 10px; border-radius: 8px;}
-input[type="number"], input[type="text"], select { width: 80px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
-.feedback { font-weight: bold; margin-left: 10px; } .correct { color: #4CAF50; } .incorrect { color: #F44336; }
+    :root { 
+        --primary: #4CAF50; --secondary: #FF9800; --bg: #f4f9f4; --text: #333; 
+        --w: 120px; --h: 120px; --d: 120px; 
+    }
+    body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
+    header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    
+    /* タブ周り */
+    .tabs { display: flex; justify-content: center; background-color: #388E3C; }
+    .tab-btn { background: none; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: 0.3s; margin: 0; }
+    .tab-btn.active { background-color: var(--secondary); border-bottom: 4px solid #E65100; }
+    
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .mode-section { display: none; } 
+    .mode-section.active { display: block; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* 立体シミュレーション周り */
+    .controls { text-align: center; margin-bottom: 10px; }
+    .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; margin-bottom: 20px; }
+    .scene { width: 300px; height: 300px; margin: 20px auto; perspective: 800px; cursor: grab; touch-action: none; /* スマホでのスクロール干渉を防ぐ */ }
+    .scene:active { cursor: grabbing; }
+    .cube { position: relative; width: var(--w); height: var(--h); margin: auto; top: 50%; transform: translateY(-50%) rotateX(-25deg) rotateY(30deg); transform-style: preserve-3d; transition: width 0.5s, height 0.5s; }
+    
+    .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: background 0.3s, color 0.3s; }
+    .face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
+    
+    .front  { width: var(--w); height: var(--h); transform: translateZ(calc(var(--d) / 2)); }
+    .back   { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); }
+    .top    { width: var(--w); height: var(--d); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); }
+    .bottom { width: var(--w); height: var(--d); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
+    .left   { width: var(--d); height: var(--h); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+    .right  { width: var(--d); height: var(--h); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+    
+    button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold; }
+    button:active { transform: translateY(4px); box-shadow: none; }
+    
+    /* 展開図周り */
+    .paint-grid { display: grid; grid-template-columns: repeat(6, 40px); gap: 3px; justify-content: center; margin-top: 20px; }
+    .cell { width: 40px; height: 40px; background: #ddd; cursor: pointer; border-radius: 4px; transition: background 0.2s; } 
+    .cell.active { background: #4CAF50; }
+    .result { font-size: 1.2rem; margin-top: 15px; font-weight: bold; text-align: center; min-height: 30px; }
+    
+    /* 問題セクション周り */
+    .question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 20px; border-radius: 4px; user-select: text; }
+    .question-box h3 { margin-top: 0; color: #E65100; }
+    input[type="number"], select { width: 100px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
+    .feedback { font-weight: bold; margin-left: 10px; } 
+    .correct { color: #4CAF50; } .incorrect { color: #F44336; }
 </style>
 </head>
 <body>
@@ -52,13 +69,14 @@ input[type="number"], input[type="text"], select { width: 80px; padding: 8px; fo
 
 <div class="container">
     <div id="sim" class="mode-section active">
-        <h2>① ドラッグで回して、形をたしかめよう</h2>
+        <h2>① 指で回して、形をたしかめよう</h2>
         <div class="controls">
             <button onclick="setCube()">立方体</button>
             <button onclick="setCuboid()">直方体</button>
-            <button onclick="resetFaceCount()" style="background:#555; box-shadow:0 4px 0 #333;">かぞえ直す</button>
+            <button onclick="resetFaceCount()" style="background:#555; box-shadow:0 4px 0 #333;">色をリセット</button>
         </div>
         <div id="shapeDesc" class="desc-text">すべての辺の長さが同じです。</div>
+        
         <div class="scene" id="scene">
             <div class="cube" id="cube">
                 <div class="face front" onclick="countFace(this)">前</div>
@@ -70,12 +88,12 @@ input[type="number"], input[type="text"], select { width: 80px; padding: 8px; fo
             </div>
         </div>
         <div style="text-align: center; font-size: 1.2rem; font-weight: bold;">
-            見つけた面: <span id="faceCount" style="color: red; font-size: 1.5rem;">0</span> / 6
+            さわった面: <span id="faceCount" style="color: red; font-size: 1.5rem;">0</span> / 6
         </div>
 
         <hr style="margin: 30px 0; border: 1px dashed #ccc;">
 
-        <h2>② 展開図を作ろう</h2>
+        <h2>② 立方体の展開図を作ろう</h2>
         <p style="text-align: center;">6つのマスを塗って、正しい展開図になるか判定しよう！</p>
         <div class="paint-grid" id="grid"></div>
         <div style="text-align: center; margin-top: 20px;">
@@ -88,27 +106,38 @@ input[type="number"], input[type="text"], select { width: 80px; padding: 8px; fo
     <div id="prob" class="mode-section">
         <h2>学習したことをテストしてみよう！</h2>
         <div id="questions-container">
-            <p style="text-align:center; color:#666;">問題を読み込み中...</p>
+            <p style="text-align:center; color:#666;">問題を読み込み中... (questions.js が必要です)</p>
         </div>
     </div>
 </div>
 
 <script src="questions.js"></script>
+
 <script>
-// ==========================================
-// ⚙️ システム機能（音・タブ切り替えなど）
-// ==========================================
+// --- 音を鳴らす機能 ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
     osc.connect(gainNode); gainNode.connect(audioCtx.destination);
-    if (type === 'click') { osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
-    else if (type === 'success') { osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); osc.start(); osc.stop(audioCtx.currentTime + 0.4); }
-    else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
-    else if (type === 'fanfare') { osc.type = 'square'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.45); gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8); osc.start(); osc.stop(audioCtx.currentTime + 0.8); }
+    
+    if (type === 'click') {
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'success') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); 
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    } else if (type === 'error') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3); 
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
 }
 
+// --- タブ切り替え ---
 function switchTab(tabId, btn) {
     playSound('click');
     document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
@@ -117,117 +146,175 @@ function switchTab(tabId, btn) {
     btn.classList.add('active');
 }
 
-// ==========================================
-// 🎲 シミュレーション機能（3D）
-// ==========================================
+// --- 3D立体の機能 ---
 let faceCount = 0;
 function countFace(element) {
     if (!element.classList.contains("counted")) {
         playSound('click'); element.classList.add("counted"); faceCount++;
         document.getElementById("faceCount").innerText = faceCount;
-        if(faceCount === 6) setTimeout(() => { playSound('fanfare'); alert("すごい！6つの面をぜんぶ見つけたね！"); }, 200);
+        if(faceCount === 6) setTimeout(() => { playSound('success'); alert("すごい！6つの面をぜんぶ見つけたね！"); }, 200);
     }
 }
 function resetFaceCount() { 
-    faceCount = 0; 
-    document.getElementById("faceCount").innerText = faceCount; 
+    faceCount = 0; document.getElementById("faceCount").innerText = faceCount; 
     document.querySelectorAll('.face').forEach(f => f.classList.remove("counted")); 
 }
 
-const root = document.documentElement; const descText = document.getElementById("shapeDesc");
+const root = document.documentElement;
+const descText = document.getElementById("shapeDesc");
+
 function setCube(){
     playSound('click');
-    root.style.setProperty('--w', '120px');
-    root.style.setProperty('--h', '120px');
-    root.style.setProperty('--d', '120px');
-    descText.innerText = "すべての辺の長さが同じです。";
-    resetFaceCount(); // ★修正反映
+    root.style.setProperty('--w', '120px'); root.style.setProperty('--h', '120px'); root.style.setProperty('--d', '120px');
+    descText.innerText = "立方体：すべての辺の長さが同じです。";
+    resetFaceCount();
 }
-
 function setCuboid(){
     playSound('click');
-    root.style.setProperty('--w', '160px');
-    root.style.setProperty('--h', '80px');
-    root.style.setProperty('--d', '120px');
-    descText.innerText = "3種類の長さがあります。";
-    resetFaceCount(); // ★修正反映
+    root.style.setProperty('--w', '160px'); root.style.setProperty('--h', '80px'); root.style.setProperty('--d', '120px');
+    descText.innerText = "直方体：縦、横、高さの長さが違います。";
+    resetFaceCount();
 }
 
-const scene = document.getElementById("scene"); const cube = document.getElementById("cube");
+// 指やマウスでぐるぐる回す機能 (Pointer Events に統一してバグ防止)
+const scene = document.getElementById("scene");
+const cube = document.getElementById("cube");
 let isDragging = false, startX, startY, currentRotX = -25, currentRotY = 30;
-function onPointerDown(e) { isDragging = true; startX = e.clientX || e.touches[0].clientX; startY = e.clientY || e.touches[0].clientY; }
-function onPointerMove(e) { if (!isDragging) return; let x = e.clientX || e.touches[0].clientX; let y = e.clientY || e.touches[0].clientY; currentRotY += (x - startX) * 0.5; currentRotX -= (y - startY) * 0.5; cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`; startX = x; startY = y; }
-function onPointerUp() { isDragging = false; }
-scene.addEventListener("mousedown", onPointerDown); document.addEventListener("mousemove", onPointerMove); document.addEventListener("mouseup", onPointerUp);
-scene.addEventListener("touchstart", onPointerDown, {passive: false}); document.addEventListener("touchmove", onPointerMove, {passive: false}); document.addEventListener("touchend", onPointerUp);
 
-// ==========================================
-// 🎲 展開図 判定ロジック（★完全修正版）
-// ==========================================
-const grid = document.getElementById("grid"); let cells = [];
-for(let i=0; i<36; i++) { let div = document.createElement("div"); div.className = "cell"; div.onclick = () => { playSound('click'); div.classList.toggle("active"); }; grid.appendChild(div); cells.push(div); }
-function resetGrid() { playSound('click'); cells.forEach(c => c.classList.remove("active")); document.getElementById("netResult").innerText = ""; }
-function showResult(text, color, isSuccess) { if(isSuccess) playSound('success'); else playSound('error'); const res = document.getElementById("netResult"); res.innerText = text; res.style.color = color; }
+scene.addEventListener("pointerdown", (e) => {
+    isDragging = true; startX = e.clientX; startY = e.clientY;
+    scene.setPointerCapture(e.pointerId);
+});
+scene.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    currentRotY += (e.clientX - startX) * 0.5; currentRotX -= (e.clientY - startY) * 0.5;
+    cube.style.transform = `translateY(-50%) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+    startX = e.clientX; startY = e.clientY;
+});
+scene.addEventListener("pointerup", (e) => {
+    isDragging = false; scene.releasePointerCapture(e.pointerId);
+});
 
-const rawValidNets = [
-    [[0,1],[1,0],[1,1],[1,2],[2,1],[3,1]], [[0,1],[1,0],[1,1],[1,2],[2,1],[2,2]], [[0,1],[1,1],[2,0],[2,1],[3,1],[4,1]],
-    [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[2,0],[3,0],[4,0]], [[0,0],[1,0],[1,1],[2,1],[3,1],[4,1]],
-    [[0,1],[1,1],[2,1],[3,1],[3,0],[4,0]], [[0,0],[1,0],[2,0],[3,0],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]],
-    [[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]], [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]]
-];
+// --- 展開図の判定機能 ---
+const grid = document.getElementById("grid");
+let gridData = Array(6).fill().map(() => Array(6).fill(0));
 
-function normalize(coords){
-    let minX = Math.min(...coords.map(c=>c[0]));
-    let minY = Math.min(...coords.map(c=>c[1]));
-    return coords.map(c=>[c[0]-minX, c[1]-minY]).sort((a,b)=> a[0]-b[0] || a[1]-b[1]);
-}
-function rotate90(coords){ return normalize(coords.map(([x,y])=>[-y,x])); }
-function reflectX(coords){ return normalize(coords.map(([x,y])=>[-x,y])); }
-function toStr(coords){ return JSON.stringify(coords); }
-
-function generateForms(coords){
-    let forms = [];
-    let current = normalize(coords);
-    for(let i=0;i<4;i++){
-        forms.push(toStr(current));
-        forms.push(toStr(reflectX(current)));
-        current = rotate90(current);
+// 6x6のマス目を作る
+for(let y=0; y<6; y++) {
+    for(let x=0; x<6; x++) {
+        let div = document.createElement("div");
+        div.className = "cell";
+        div.onclick = () => {
+            playSound('click');
+            div.classList.toggle("active");
+            gridData[y][x] = div.classList.contains("active") ? 1 : 0;
+        };
+        grid.appendChild(div);
     }
-    return forms;
 }
 
-let validForms = new Set();
-rawValidNets.forEach(net=>{ generateForms(net).forEach(f=>validForms.add(f)); });
+function resetGrid() {
+    playSound('click');
+    document.querySelectorAll('.cell').forEach(c => c.classList.remove("active"));
+    gridData = Array(6).fill().map(() => Array(6).fill(0));
+    document.getElementById("netResult").innerText = "";
+}
 
-function getSelectedCoords(){
-    let coords=[];
-    cells.forEach((c,i)=>{ if(c.classList.contains("active")) coords.push([i%6, Math.floor(i/6)]); });
-    return coords;
+// 11種類の正しい立方体の展開図データ (余白を切り詰めた文字列化)
+const validPatterns = new Set([
+    "0,1,0,0\n1,1,1,1\n0,1,0,0", "0,1,0,0\n1,1,1,1\n0,0,1,0", "0,1,0,0\n1,1,1,1\n0,0,0,1",
+    "1,0,0,0\n1,1,1,1\n0,0,1,0", "1,0,0,0\n1,1,1,1\n0,0,0,1", "1,0,0,0\n1,1,1,1\n1,0,0,0",
+    "1,1,0,0\n0,1,1,1\n0,1,0,0", "1,1,0,0\n0,1,1,1\n0,0,1,0", "1,1,0,0\n0,1,1,1\n0,0,0,1",
+    "1,1,0\n0,1,1\n0,0,1", "1,1,1,0,0\n0,0,1,1,1"
+]);
+
+// ユーザーが塗ったマスから余白を削って文字列にする関数
+function extractPattern(grid2D) {
+    let minX = 6, maxX = -1, minY = 6, maxY = -1, count = 0;
+    for(let y=0; y<6; y++) {
+        for(let x=0; x<6; x++) {
+            if(grid2D[y][x] === 1) {
+                if(x < minX) minX = x; if(x > maxX) maxX = x;
+                if(y < minY) minY = y; if(y > maxY) maxY = y;
+                count++;
+            }
+        }
+    }
+    if(count !== 6) return null; // 6マスじゃなければダメ
+    
+    let result = [];
+    for(let y=minY; y<=maxY; y++) {
+        let row = [];
+        for(let x=minX; x<=maxX; x++) {
+            row.push(grid2D[y][x]);
+        }
+        result.push(row.join(","));
+    }
+    return result.join("\n");
+}
+
+// 2次元配列を回転させる関数
+function rotateArray(arr) {
+    let result = [];
+    let rows = arr.length, cols = arr[0].length;
+    for(let x=0; x<cols; x++) {
+        let newRow = [];
+        for(let y=rows-1; y>=0; y--) { newRow.push(arr[y][x]); }
+        result.push(newRow);
+    }
+    return result;
+}
+
+// 2次元配列を左右反転させる関数
+function flipArray(arr) {
+    return arr.map(row => [...row].reverse());
+}
+
+// パターンを2次元配列に変換して返す
+function stringToArray(str) {
+    return str.split("\n").map(row => row.split(",").map(Number));
+}
+// 配列を文字列に戻す
+function arrayToString(arr) {
+    return arr.map(row => row.join(",")).join("\n");
 }
 
 function checkNet(){
-    let coords = getSelectedCoords();
-    if(coords.length !== 6){
-        showResult(`いま ${coords.length} コだよ。面は6つ必要です。`, "red", false);
+    let baseStr = extractPattern(gridData);
+    const res = document.getElementById("netResult");
+
+    if(!baseStr) {
+        let count = gridData.flat().filter(v => v === 1).length;
+        res.innerText = `いま ${count} コだよ。ぴったり6マス塗ってね。`;
+        res.style.color = "#F44336";
+        playSound('error');
         return;
     }
-    let forms = generateForms(coords);
-    if(forms.some(f=>validForms.has(f))){
-        showResult("⭕️ 正しい展開図です！立体になります！", "green", true);
-    }else{
-        showResult("❌ この形は立体になりません。", "red", false);
+
+    // 入力された形を回したり裏返したりして、正解リストにあるか探す
+    let currentArr = stringToArray(baseStr);
+    let isCorrect = false;
+
+    for(let i=0; i<4; i++) {
+        if(validPatterns.has(arrayToString(currentArr)) || validPatterns.has(arrayToString(flipArray(currentArr)))) {
+            isCorrect = true; break;
+        }
+        currentArr = rotateArray(currentArr);
+    }
+
+    if(isCorrect){
+        res.innerText = "⭕️ 正解！組み立てると立方体になります！"; res.style.color = "#4CAF50"; playSound('success');
+    } else {
+        res.innerText = "❌ ざんねん…この形は立体になりません。"; res.style.color = "#F44336"; playSound('error');
     }
 }
 
-// ==========================================
-// ✏️ 問題描画ロジック（★外部JS・DOM連動）
-// ==========================================
+// --- 外部ファイル(questions.js)からの問題読み込み ---
 function renderQuestions() {
-    const questionsData = window.questionsData || [];
     const container = document.getElementById('questions-container');
     
-    if (questionsData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:red;">問題データが見つかりません。questions.js を確認してください。</p>';
+    if (typeof questionsData === 'undefined' || questionsData.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:red;">問題ファイル (questions.js) が見つかりません。</p>';
         return;
     }
 
@@ -237,18 +324,11 @@ function renderQuestions() {
         <div class="question-box">
             <h3>${q.title}</h3>
             ${q.description ? `<p>${q.description}</p>` : ''}
-            <div class="svg-container">${q.svg}</div>
         `;
         
         q.subQuestions.forEach(sq => {
             html += `<p>${sq.text} `;
-            if (sq.type === "select") {
-                html += `<select id="q_${sq.id}"><option value="">選んでね</option>`;
-                sq.options.forEach(opt => { html += `<option value="${opt}">点 ${opt}</option>`; });
-                html += `</select>`;
-            } else {
-                html += `<input type="number" id="q_${sq.id}"> ${sq.unit}`;
-            }
+            html += `<input type="number" id="q_${sq.id}"> ${sq.unit}`;
             html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
         });
 
@@ -258,7 +338,6 @@ function renderQuestions() {
 }
 
 function checkDynamicQ(questionId) {
-    const questionsData = window.questionsData || [];
     const question = questionsData.find(q => q.id === questionId);
     if (!question) return;
 
@@ -268,24 +347,17 @@ function checkDynamicQ(questionId) {
         const resEl = document.getElementById(`res_${sq.id}`);
         
         if (inputEl.value.trim() === sq.answer) {
-            resEl.innerHTML = "⭕️"; resEl.className = "feedback correct";
+            resEl.innerHTML = "⭕️ 正解！"; resEl.className = "feedback correct";
         } else {
-            resEl.innerHTML = "❌"; resEl.className = "feedback incorrect"; allCorrect = false;
+            resEl.innerHTML = "❌ もういちど"; resEl.className = "feedback incorrect"; allCorrect = false;
         }
     });
 
-    if(allCorrect) playSound('success');
-    else playSound('error');
+    if(allCorrect) playSound('success'); else playSound('error');
 }
 
-// ページ読み込み後に問題を安全に描画
-window.addEventListener("DOMContentLoaded", ()=>{
-    if(window.questionsData){
-        renderQuestions();
-    } else {
-        document.getElementById('questions-container').innerHTML = '<p style="color:red; text-align:center;">エラー: questions.js が読み込めませんでした。</p>';
-    }
-});
+// 画面が読み込まれたら問題を表示する
+window.addEventListener("DOMContentLoaded", renderQuestions);
 
 </script>
 </body>
