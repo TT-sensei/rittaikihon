@@ -4,80 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>さわってわかる！直方体と立方体マスター</title>
-
 <style>
-:root {
-    --primary: #4CAF50;
-    --secondary: #FF9800;
-    --bg: #f4f9f4;
-    --text: #333;
-    --w: 120px;
-    --h: 120px;
-    --d: 120px;
-}
-
-body {
-    font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin: 0;
-    user-select: none; 
-}
-
-header {
-    background: var(--primary);
-    color: white;
-    text-align: center;
-    padding: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
+:root { --primary: #4CAF50; --secondary: #FF9800; --bg: #f4f9f4; --text: #333; --w: 120px; --h: 120px; --d: 120px; }
+body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
+header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 .tabs { display: flex; justify-content: center; background-color: #388E3C; }
 .tab-btn { background: none; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: 0.3s; margin: 0; }
 .tab-btn.active { background-color: var(--secondary); border-bottom: 4px solid #E65100; }
 .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.mode-section { display: none; }
-.mode-section.active { display: block; animation: fadeIn 0.5s; }
-
+.mode-section { display: none; } .mode-section.active { display: block; animation: fadeIn 0.5s; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* シミュレーション用CSS */
 .controls { text-align: center; margin-bottom: 10px; }
 .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; min-height: 1.5em; margin-bottom: 20px; }
 .scene { width: 280px; height: 280px; margin: 20px auto; perspective: 800px; cursor: grab; }
 .scene:active { cursor: grabbing; }
 .cube { position: relative; width: var(--w); height: var(--h); margin: auto; transform-style: preserve-3d; transform: rotateX(-25deg) rotateY(30deg); transition: width 0.5s, height 0.5s; }
 .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: all 0.5s; }
-.face:hover { background: rgba(100, 150, 255, 0.9); }
-.face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
-
+.face:hover { background: rgba(100, 150, 255, 0.9); } .face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
 .front  { width: var(--w); height: var(--h); transform: translateZ(calc(var(--d) / 2)); }
 .back   { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); }
 .top    { width: var(--w); height: var(--d); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); }
 .bottom { width: var(--w); height: var(--d); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
 .left   { width: var(--d); height: var(--h); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
 .right  { width: var(--d); height: var(--h); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
-
 button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold;}
 button:active { transform: translateY(4px); box-shadow: none; }
-
 .paint-grid { display: grid; grid-template-columns: repeat(6, 40px); gap: 3px; justify-content: center; margin-top: 20px; }
-.cell { width: 40px; height: 40px; background: #ddd; cursor: pointer; border-radius: 4px; }
-.cell.active { background: #4CAF50; }
-.result { font-size: 18px; margin-top: 15px; font-weight: bold; text-align: center; }
-
-/* 問題用CSS */
+.cell { width: 40px; height: 40px; background: #ddd; cursor: pointer; border-radius: 4px; } .cell.active { background: #4CAF50; }
+.result { font-size: 18px; margin-top: 15px; font-weight: bold; text-align: center; min-height: 27px; }
 .question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 30px; border-radius: 4px; user-select: text; }
 .question-box h3 { margin-top: 0; color: #E65100; }
 .svg-container { text-align: center; margin: 15px 0; background: white; padding: 10px; border-radius: 8px;}
 input[type="number"], input[type="text"], select { width: 80px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
-select { width: auto; }
-.feedback { font-weight: bold; margin-left: 10px; }
-.correct { color: #4CAF50; }
-.incorrect { color: #F44336; }
+.feedback { font-weight: bold; margin-left: 10px; } .correct { color: #4CAF50; } .incorrect { color: #F44336; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -90,7 +51,6 @@ select { width: auto; }
 </div>
 
 <div class="container">
-
     <div id="sim" class="mode-section active">
         <h2>① ドラッグで回して、形をたしかめよう</h2>
         <div class="controls">
@@ -125,83 +85,16 @@ select { width: auto; }
         <div class="result" id="netResult"></div>
     </div>
 
-
     <div id="prob" class="mode-section">
         <h2>学習したことをテストしてみよう！</h2>
-        <div id="questions-container"></div>
+        <div id="questions-container">
+            <p style="text-align:center; color:#666;">問題を読み込み中...</p>
+        </div>
     </div>
-
 </div>
 
+<script src="questions.js"></script>
 <script>
-// ==========================================
-// 📚 問題データ (ここに追加していけば問題が増えます)
-// ==========================================
-const questionsData = [
-    {
-        id: 1,
-        title: "第1問：直方体の辺と面",
-        description: "下の図の直方体について答えましょう。",
-        svg: `<svg width="250" height="200" viewBox="0 0 250 200">
-                <polygon points="100,30 220,30 220,110 100,110" fill="#e0e0e0" stroke="#333" stroke-width="1.5"/>
-                <polygon points="40,70 160,70 220,30 100,30" fill="rgba(208, 224, 255, 0.9)" stroke="#333" stroke-width="1.5"/>
-                <polygon points="160,70 220,30 220,110 160,150" fill="rgba(160, 192, 255, 0.9)" stroke="#333" stroke-width="1.5"/>
-                <polygon points="40,70 160,70 160,150 40,150" fill="rgba(128, 176, 255, 0.9)" stroke="#333" stroke-width="1.5"/>
-                <text x="90" y="170" font-weight="bold">12cm</text>
-                <text x="195" y="140" font-weight="bold">5cm</text>
-                <text x="10" y="115" font-weight="bold">8cm</text>
-                <line x1="40" y1="150" x2="100" y2="110" stroke="#333" stroke-dasharray="4" stroke-width="1.5"/>
-                <line x1="40" y1="70" x2="100" y2="30" stroke="#333" stroke-dasharray="4" stroke-width="1.5"/>
-                <line x1="100" y1="30" x2="100" y2="110" stroke="#333" stroke-dasharray="4" stroke-width="1.5"/>
-            </svg>`,
-        subQuestions: [
-            { id: "1_1", text: "① 長さが12cmの辺はいくつありますか？", type: "number", answer: "4", unit: "本" },
-            { id: "1_2", text: "② 直方体の頂点は、全部でいくつありますか？", type: "number", answer: "8", unit: "つ" }
-        ]
-    },
-    {
-        id: 2,
-        title: "第2問：面と面の関係",
-        description: "下の図の直方体について答えましょう。",
-        svg: `<svg width="200" height="200" viewBox="0 0 200 200">
-                <polygon points="80,40 160,40 160,120 80,120" fill="#eee" stroke="#333" stroke-width="1.5"/>
-                <polygon points="40,80 120,80 160,40 80,40" fill="#fff9c4" stroke="#333" stroke-width="1.5"/>
-                <polygon points="120,80 160,40 160,120 120,160" fill="#bbdefb" stroke="#333" stroke-width="1.5"/>
-                <polygon points="40,80 120,80 120,160 40,160" fill="#ffcdd2" stroke="#333" stroke-width="1.5"/>
-                <text x="75" y="125" font-weight="bold" font-size="20">あ</text>
-                <text x="135" y="105" font-weight="bold" font-size="20">い</text>
-                <text x="95" y="65" font-weight="bold" font-size="20">う</text>
-            </svg>`,
-        subQuestions: [
-            { id: "2_1", text: "① 面(あ) に <strong>垂直</strong> な面はいくつありますか？", type: "number", answer: "4", unit: "つ" },
-            { id: "2_2", text: "② 面(い) に <strong>平行</strong> な面はいくつありますか？", type: "number", answer: "1", unit: "つ" }
-        ]
-    },
-    {
-        id: 3,
-        title: "第3問：展開図の重なり",
-        description: "立方体の展開図を組み立てます。",
-        svg: `<svg width="240" height="180" viewBox="0 0 240 180">
-                <rect x="80" y="20" width="40" height="40" fill="#fff" stroke="#333"/>
-                <rect x="40" y="60" width="40" height="40" fill="#fff" stroke="#333"/>
-                <rect x="80" y="60" width="40" height="40" fill="#e0e0e0" stroke="#333"/> 
-                <rect x="120" y="60" width="40" height="40" fill="#fff" stroke="#333"/>
-                <rect x="160" y="60" width="40" height="40" fill="#fff" stroke="#333"/>
-                <rect x="80" y="100" width="40" height="40" fill="#fff" stroke="#333"/>
-                <text x="70" y="15" font-size="14">ア</text>
-                <text x="125" y="15" font-size="14">イ</text>
-                <text x="165" y="55" font-size="14">ウ</text>
-                <text x="205" y="55" font-size="14">エ</text>
-                <circle cx="80" cy="20" r="3" fill="red"/>
-                <circle cx="120" cy="20" r="3" fill="blue"/>
-                <circle cx="160" cy="60" r="3" fill="green"/>
-            </svg>`,
-        subQuestions: [
-            { id: "3_1", text: "① 組み立てたとき、点(ア) と重なる点はどれですか？", type: "select", options: ["イ", "ウ", "エ"], answer: "ウ", unit: "" }
-        ]
-    }
-];
-
 // ==========================================
 // ⚙️ システム機能（音・タブ切り替えなど）
 // ==========================================
@@ -225,7 +118,7 @@ function switchTab(tabId, btn) {
 }
 
 // ==========================================
-// 🎲 シミュレーション機能（3D・展開図）
+// 🎲 シミュレーション機能（3D）
 // ==========================================
 let faceCount = 0;
 function countFace(element) {
@@ -235,11 +128,30 @@ function countFace(element) {
         if(faceCount === 6) setTimeout(() => { playSound('fanfare'); alert("すごい！6つの面をぜんぶ見つけたね！"); }, 200);
     }
 }
-function resetFaceCount() { playSound('click'); faceCount = 0; document.getElementById("faceCount").innerText = faceCount; document.querySelectorAll('.face').forEach(f => f.classList.remove("counted")); }
+function resetFaceCount() { 
+    faceCount = 0; 
+    document.getElementById("faceCount").innerText = faceCount; 
+    document.querySelectorAll('.face').forEach(f => f.classList.remove("counted")); 
+}
 
 const root = document.documentElement; const descText = document.getElementById("shapeDesc");
-function setCube() { playSound('click'); root.style.setProperty('--w', '120px'); root.style.setProperty('--h', '120px'); root.style.setProperty('--d', '120px'); descText.innerText = "すべての辺の長さが同じです。"; }
-function setCuboid() { playSound('click'); root.style.setProperty('--w', '160px'); root.style.setProperty('--h', '80px'); root.style.setProperty('--d', '120px'); descText.innerText = "3種類の長さ（たて・横・高さ）があります。"; }
+function setCube(){
+    playSound('click');
+    root.style.setProperty('--w', '120px');
+    root.style.setProperty('--h', '120px');
+    root.style.setProperty('--d', '120px');
+    descText.innerText = "すべての辺の長さが同じです。";
+    resetFaceCount(); // ★修正反映
+}
+
+function setCuboid(){
+    playSound('click');
+    root.style.setProperty('--w', '160px');
+    root.style.setProperty('--h', '80px');
+    root.style.setProperty('--d', '120px');
+    descText.innerText = "3種類の長さがあります。";
+    resetFaceCount(); // ★修正反映
+}
 
 const scene = document.getElementById("scene"); const cube = document.getElementById("cube");
 let isDragging = false, startX, startY, currentRotX = -25, currentRotY = 30;
@@ -249,28 +161,77 @@ function onPointerUp() { isDragging = false; }
 scene.addEventListener("mousedown", onPointerDown); document.addEventListener("mousemove", onPointerMove); document.addEventListener("mouseup", onPointerUp);
 scene.addEventListener("touchstart", onPointerDown, {passive: false}); document.addEventListener("touchmove", onPointerMove, {passive: false}); document.addEventListener("touchend", onPointerUp);
 
-// 展開図
+// ==========================================
+// 🎲 展開図 判定ロジック（★完全修正版）
+// ==========================================
 const grid = document.getElementById("grid"); let cells = [];
 for(let i=0; i<36; i++) { let div = document.createElement("div"); div.className = "cell"; div.onclick = () => { playSound('click'); div.classList.toggle("active"); }; grid.appendChild(div); cells.push(div); }
 function resetGrid() { playSound('click'); cells.forEach(c => c.classList.remove("active")); document.getElementById("netResult").innerText = ""; }
 function showResult(text, color, isSuccess) { if(isSuccess) playSound('success'); else playSound('error'); const res = document.getElementById("netResult"); res.innerText = text; res.style.color = color; }
 
-const rawValidNets = [[[0,1],[1,0],[1,1],[1,2],[2,1],[3,1]], [[0,1],[1,0],[1,1],[1,2],[2,1],[2,2]], [[0,1],[1,1],[2,0],[2,1],[3,1],[4,1]], [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[2,0],[3,0],[4,0]], [[0,0],[1,0],[1,1],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[3,0],[4,0]], [[0,0],[1,0],[2,0],[3,0],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]], [[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]], [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]]];
-function normalize(coords){ let minX=Math.min(...coords.map(c=>c[0])), minY=Math.min(...coords.map(c=>c[1])); return coords.map(c=>[c[0]-minX, c[1]-minY]).sort((a, b) => a[0] - b[0] || a[1] - b[1]); }
-const validNetsStrings = rawValidNets.map(net => JSON.stringify(normalize(net)));
-function getSelectedCoords(){ let coords=[]; cells.forEach((c,i)=>{ if(c.classList.contains("active")) coords.push([i%6, Math.floor(i/6)]); }); return normalize(coords); }
-function rotate(coords){ return normalize(coords.map(c=>[-c[1],c[0]])); }
-function reflect(coords){ return normalize(coords.map(c=>[-c[0],c[1]])); }
-function matchesValid(coords){ let forms=[], current=coords; for(let i=0; i<4; i++){ forms.push(current); forms.push(reflect(current)); current=rotate(current); } return forms.some(form => validNetsStrings.includes(JSON.stringify(form))); }
-function checkNet(){ let coords=getSelectedCoords(); if(coords.length!==6){ showResult(`いま ${coords.length} コだよ。面は「6つ」必要です！`,"red",false); return; } if(matchesValid(coords)){ showResult("⭕️ 大正解！正しい展開図です！立体になります！","green",true); }else{ showResult("❌ おしい！この形は立体になりません","red",false); } }
+const rawValidNets = [
+    [[0,1],[1,0],[1,1],[1,2],[2,1],[3,1]], [[0,1],[1,0],[1,1],[1,2],[2,1],[2,2]], [[0,1],[1,1],[2,0],[2,1],[3,1],[4,1]],
+    [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[2,0],[3,0],[4,0]], [[0,0],[1,0],[1,1],[2,1],[3,1],[4,1]],
+    [[0,1],[1,1],[2,1],[3,1],[3,0],[4,0]], [[0,0],[1,0],[2,0],[3,0],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]],
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]], [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]]
+];
+
+function normalize(coords){
+    let minX = Math.min(...coords.map(c=>c[0]));
+    let minY = Math.min(...coords.map(c=>c[1]));
+    return coords.map(c=>[c[0]-minX, c[1]-minY]).sort((a,b)=> a[0]-b[0] || a[1]-b[1]);
+}
+function rotate90(coords){ return normalize(coords.map(([x,y])=>[-y,x])); }
+function reflectX(coords){ return normalize(coords.map(([x,y])=>[-x,y])); }
+function toStr(coords){ return JSON.stringify(coords); }
+
+function generateForms(coords){
+    let forms = [];
+    let current = normalize(coords);
+    for(let i=0;i<4;i++){
+        forms.push(toStr(current));
+        forms.push(toStr(reflectX(current)));
+        current = rotate90(current);
+    }
+    return forms;
+}
+
+let validForms = new Set();
+rawValidNets.forEach(net=>{ generateForms(net).forEach(f=>validForms.add(f)); });
+
+function getSelectedCoords(){
+    let coords=[];
+    cells.forEach((c,i)=>{ if(c.classList.contains("active")) coords.push([i%6, Math.floor(i/6)]); });
+    return coords;
+}
+
+function checkNet(){
+    let coords = getSelectedCoords();
+    if(coords.length !== 6){
+        showResult(`いま ${coords.length} コだよ。面は6つ必要です。`, "red", false);
+        return;
+    }
+    let forms = generateForms(coords);
+    if(forms.some(f=>validForms.has(f))){
+        showResult("⭕️ 正しい展開図です！立体になります！", "green", true);
+    }else{
+        showResult("❌ この形は立体になりません。", "red", false);
+    }
+}
 
 // ==========================================
-// ✏️ 問題データを自動で画面に作る機能
+// ✏️ 問題描画ロジック（★外部JS・DOM連動）
 // ==========================================
 function renderQuestions() {
+    const questionsData = window.questionsData || [];
     const container = document.getElementById('questions-container');
-    container.innerHTML = ''; 
+    
+    if (questionsData.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:red;">問題データが見つかりません。questions.js を確認してください。</p>';
+        return;
+    }
 
+    container.innerHTML = ''; 
     questionsData.forEach(q => {
         let html = `
         <div class="question-box">
@@ -297,6 +258,7 @@ function renderQuestions() {
 }
 
 function checkDynamicQ(questionId) {
+    const questionsData = window.questionsData || [];
     const question = questionsData.find(q => q.id === questionId);
     if (!question) return;
 
@@ -316,10 +278,14 @@ function checkDynamicQ(questionId) {
     else playSound('error');
 }
 
-// ページが開いたときに問題を自動生成
-window.onload = () => {
-    renderQuestions();
-};
+// ページ読み込み後に問題を安全に描画
+window.addEventListener("DOMContentLoaded", ()=>{
+    if(window.questionsData){
+        renderQuestions();
+    } else {
+        document.getElementById('questions-container').innerHTML = '<p style="color:red; text-align:center;">エラー: questions.js が読み込めませんでした。</p>';
+    }
+});
 
 </script>
 </body>
