@@ -183,9 +183,8 @@ const questionsData = [
    subQuestions: [
       { id: "10_1", text: "見えない辺（点線）は全部で何本かく必要がありますか。", type: "number", answer: "3", unit: "本" }
     ]
-  }
-];         
-  {
+  },
+          {
     id: 11,
     title: "第11問：直方体の面・辺・頂点",
     description: "直方体や立方体の基本的なつくりについて答えましょう。",
@@ -392,10 +391,4 @@ const questionsData = [
       { id: "20_1", text: "面Cに垂直になる面はいくつありますか。", type: "number", answer: "4", unit: "つ" }
     ]
   },
-            
-            
-            
-            
-            
-            
-    
+  ];
