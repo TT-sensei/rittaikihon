@@ -366,11 +366,11 @@ function checkNetWithSimulation() {
         }
     });
 
-    tl.to(rootMesh.rotation, { z: Math.PI/4, duration: 1, ease: "power2.inOut" }, 0); 
+    tl.to(rootMesh.rotation, { z: Math.PI/4, duration: 2, ease: "power2.inOut" }, 0); 
     if (isCorrect) {
-        hingeGroups.forEach((hinge, index) => { tl.to(hinge.rotation, { x: hinge.userData.rot.x, y: hinge.userData.rot.y, duration: 1.0, ease: "power2.inOut" }, index * 0.15); });
+        hingeGroups.forEach((hinge, index) => { tl.to(hinge.rotation, { x: hinge.userData.rot.x, y: hinge.userData.rot.y, duration: 2.0, ease: "power2.inOut" }, index * 0.5); });
     } else {
-        hingeGroups.forEach((hinge, index) => { tl.to(hinge.rotation, { x: hinge.userData.rot.x * 0.8, y: hinge.userData.rot.y * 0.8, duration: 0.8, ease: "power1.inOut" }, index * 0.1); });
+        hingeGroups.forEach((hinge, index) => { tl.to(hinge.rotation, { x: hinge.userData.rot.x * 0.8, y: hinge.userData.rot.y * 0.8, duration: 0.8, ease: "power1.inOut" }, index * 0.); });
         const dropDelay = hingeGroups.length * 0.1 + 0.5;
         allMeshes.forEach((mesh) => {
              gsap.to(mesh.position, { x: (Math.random() - 0.5) * 8, y: -10, z: (Math.random() - 0.5) * 8, duration: 1.5, ease: "power2.in", delay: dropDelay });
