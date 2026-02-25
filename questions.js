@@ -390,5 +390,5 @@ const questionsData = [
     subQuestions: [
       { id: "20_1", text: "面Cに垂直になる面はいくつありますか。", type: "number", answer: "4", unit: "つ" }
     ]
-  },
+  }
   ];
