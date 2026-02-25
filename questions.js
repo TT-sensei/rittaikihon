@@ -180,6 +180,11 @@ const questionsData = [
             <polygon points="30,50 50,30 110,30 90,50" fill="none" stroke="#333" stroke-width="2"/>
             <polygon points="90,50 110,30 110,90 90,110" fill="none" stroke="#333" stroke-width="2"/>
             </svg>`,
+   subQuestions: [
+      { id: "10_1", text: "見えない辺（点線）は全部で何本かく必要がありますか。", type: "number", answer: "3", unit: "本" }
+    ]
+  }
+];         
   {
     id: 11,
     title: "第11問：直方体の面・辺・頂点",
@@ -393,8 +398,4 @@ const questionsData = [
             
             
             
-    subQuestions: [
-      { id: "10_1", text: "見えない辺（点線）は全部で何本かく必要がありますか。", type: "number", answer: "3", unit: "本" }
-    ]
-  }
-];
+    
