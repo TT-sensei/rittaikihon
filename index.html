@@ -11,7 +11,6 @@
     --secondary: #FF9800;
     --bg: #f4f9f4;
     --text: #333;
-    /* 立体のサイズを変数で管理 */
     --w: 120px;
     --h: 120px;
     --d: 120px;
@@ -33,61 +32,20 @@ header {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* タブのデザイン */
-.tabs {
-    display: flex;
-    justify-content: center;
-    background-color: #388E3C;
-}
+.tabs { display: flex; justify-content: center; background-color: #388E3C; }
+.tab-btn { background: none; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: 0.3s; margin: 0; }
+.tab-btn.active { background-color: var(--secondary); border-bottom: 4px solid #E65100; }
+.container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.mode-section { display: none; }
+.mode-section.active { display: block; animation: fadeIn 0.5s; }
 
-.tab-btn {
-    background: none;
-    border: none;
-    color: white;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-    box-shadow: none;
-    margin: 0;
-    border-radius: 0;
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.tab-btn.active {
-    background-color: var(--secondary);
-    border-bottom: 4px solid #E65100;
-}
-
-.container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.mode-section {
-    display: none;
-}
-
-.mode-section.active {
-    display: block;
-    animation: fadeIn 0.5s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- シミュレーションモード --- */
+/* シミュレーション用CSS */
 .controls { text-align: center; margin-bottom: 10px; }
 .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; min-height: 1.5em; margin-bottom: 20px; }
 .scene { width: 280px; height: 280px; margin: 20px auto; perspective: 800px; cursor: grab; }
 .scene:active { cursor: grabbing; }
-
 .cube { position: relative; width: var(--w); height: var(--h); margin: auto; transform-style: preserve-3d; transform: rotateX(-25deg) rotateY(30deg); transition: width 0.5s, height 0.5s; }
 .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: all 0.5s; }
 .face:hover { background: rgba(100, 150, 255, 0.9); }
@@ -100,7 +58,7 @@ header {
 .left   { width: var(--d); height: var(--h); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
 .right  { width: var(--d); height: var(--h); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
 
-button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; }
+button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold;}
 button:active { transform: translateY(4px); box-shadow: none; }
 
 .paint-grid { display: grid; grid-template-columns: repeat(6, 40px); gap: 3px; justify-content: center; margin-top: 20px; }
@@ -108,10 +66,10 @@ button:active { transform: translateY(4px); box-shadow: none; }
 .cell.active { background: #4CAF50; }
 .result { font-size: 18px; margin-top: 15px; font-weight: bold; text-align: center; }
 
-/* --- 問題モード --- */
+/* 問題用CSS */
 .question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 30px; border-radius: 4px; user-select: text; }
 .question-box h3 { margin-top: 0; color: #E65100; }
-.svg-container { text-align: center; margin: 15px 0; }
+.svg-container { text-align: center; margin: 15px 0; background: white; padding: 10px; border-radius: 8px;}
 input[type="number"], input[type="text"], select { width: 80px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
 select { width: auto; }
 .feedback { font-weight: bold; margin-left: 10px; }
@@ -140,9 +98,7 @@ select { width: auto; }
             <button onclick="setCuboid()">直方体</button>
             <button onclick="resetFaceCount()" style="background:#555; box-shadow:0 4px 0 #333;">かぞえ直す</button>
         </div>
-        
         <div id="shapeDesc" class="desc-text">すべての辺の長さが同じです。</div>
-
         <div class="scene" id="scene">
             <div class="cube" id="cube">
                 <div class="face front" onclick="countFace(this)">前</div>
@@ -153,7 +109,6 @@ select { width: auto; }
                 <div class="face right" onclick="countFace(this)">右</div>
             </div>
         </div>
-
         <div style="text-align: center; font-size: 1.2rem; font-weight: bold;">
             見つけた面: <span id="faceCount" style="color: red; font-size: 1.5rem;">0</span> / 6
         </div>
@@ -173,15 +128,14 @@ select { width: auto; }
 
     <div id="prob" class="mode-section">
         <h2>学習したことをテストしてみよう！</h2>
-        
         <div id="questions-container"></div>
-        
     </div>
+
 </div>
 
 <script>
 // ==========================================
-// 📚 外部ファイル用の問題データ（本来は questions.js に書く部分）
+// 📚 問題データ (ここに追加していけば問題が増えます)
 // ==========================================
 const questionsData = [
     {
@@ -243,59 +197,25 @@ const questionsData = [
                 <circle cx="160" cy="60" r="3" fill="green"/>
             </svg>`,
         subQuestions: [
-            { 
-                id: "3_1", 
-                text: "① 組み立てたとき、点(ア) と重なる点はどれですか？", 
-                type: "select", 
-                options: ["イ", "ウ", "エ"], 
-                answer: "ウ", 
-                unit: "" 
-            }
+            { id: "3_1", text: "① 組み立てたとき、点(ア) と重なる点はどれですか？", type: "select", options: ["イ", "ウ", "エ"], answer: "ウ", unit: "" }
         ]
     }
 ];
 
 // ==========================================
-// ⚙️ システム機能群（音、描画、判定など）
+// ⚙️ システム機能（音・タブ切り替えなど）
 // ==========================================
-
-// --- 音を鳴らす機能（Web Audio API） ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    if (type === 'click') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    } else if (type === 'success') {
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-    } else if (type === 'error') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if (type === 'fanfare') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15);
-        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3);
-        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.45);
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.8);
-    }
+    const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    if (type === 'click') { osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
+    else if (type === 'success') { osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); osc.start(); osc.stop(audioCtx.currentTime + 0.4); }
+    else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
+    else if (type === 'fanfare') { osc.type = 'square'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.3); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.45); gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8); osc.start(); osc.stop(audioCtx.currentTime + 0.8); }
 }
 
-// --- タブ切り替え ---
 function switchTab(tabId, btn) {
     playSound('click');
     document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
@@ -304,90 +224,54 @@ function switchTab(tabId, btn) {
     btn.classList.add('active');
 }
 
-// --- シミュレーション：形・回転・面カウント ---
+// ==========================================
+// 🎲 シミュレーション機能（3D・展開図）
+// ==========================================
 let faceCount = 0;
 function countFace(element) {
     if (!element.classList.contains("counted")) {
-        playSound('click');
-        element.classList.add("counted");
-        faceCount++;
+        playSound('click'); element.classList.add("counted"); faceCount++;
         document.getElementById("faceCount").innerText = faceCount;
-        if(faceCount === 6) {
-            setTimeout(() => { playSound('fanfare'); alert("すごい！6つの面をぜんぶ見つけたね！"); }, 200);
-        }
+        if(faceCount === 6) setTimeout(() => { playSound('fanfare'); alert("すごい！6つの面をぜんぶ見つけたね！"); }, 200);
     }
 }
-function resetFaceCount() {
-    playSound('click'); faceCount = 0; document.getElementById("faceCount").innerText = faceCount;
-    document.querySelectorAll('.face').forEach(f => f.classList.remove("counted"));
-}
+function resetFaceCount() { playSound('click'); faceCount = 0; document.getElementById("faceCount").innerText = faceCount; document.querySelectorAll('.face').forEach(f => f.classList.remove("counted")); }
 
-const root = document.documentElement;
-const descText = document.getElementById("shapeDesc");
+const root = document.documentElement; const descText = document.getElementById("shapeDesc");
 function setCube() { playSound('click'); root.style.setProperty('--w', '120px'); root.style.setProperty('--h', '120px'); root.style.setProperty('--d', '120px'); descText.innerText = "すべての辺の長さが同じです。"; }
 function setCuboid() { playSound('click'); root.style.setProperty('--w', '160px'); root.style.setProperty('--h', '80px'); root.style.setProperty('--d', '120px'); descText.innerText = "3種類の長さ（たて・横・高さ）があります。"; }
 
 const scene = document.getElementById("scene"); const cube = document.getElementById("cube");
 let isDragging = false, startX, startY, currentRotX = -25, currentRotY = 30;
 function onPointerDown(e) { isDragging = true; startX = e.clientX || e.touches[0].clientX; startY = e.clientY || e.touches[0].clientY; }
-function onPointerMove(e) {
-    if (!isDragging) return;
-    let x = e.clientX || e.touches[0].clientX, y = e.clientY || e.touches[0].clientY;
-    currentRotY += (x - startX) * 0.5; currentRotX -= (y - startY) * 0.5;
-    cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
-    startX = x; startY = y;
-}
+function onPointerMove(e) { if (!isDragging) return; let x = e.clientX || e.touches[0].clientX; let y = e.clientY || e.touches[0].clientY; currentRotY += (x - startX) * 0.5; currentRotX -= (y - startY) * 0.5; cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`; startX = x; startY = y; }
 function onPointerUp() { isDragging = false; }
 scene.addEventListener("mousedown", onPointerDown); document.addEventListener("mousemove", onPointerMove); document.addEventListener("mouseup", onPointerUp);
 scene.addEventListener("touchstart", onPointerDown, {passive: false}); document.addEventListener("touchmove", onPointerMove, {passive: false}); document.addEventListener("touchend", onPointerUp);
 
-// --- 展開図判定（数学的完全判定） ---
-const grid = document.getElementById("grid");
-let cells = [];
-for(let i=0; i<36; i++) {
-    let div = document.createElement("div"); div.className = "cell";
-    div.onclick = () => { playSound('click'); div.classList.toggle("active"); };
-    grid.appendChild(div); cells.push(div);
-}
+// 展開図
+const grid = document.getElementById("grid"); let cells = [];
+for(let i=0; i<36; i++) { let div = document.createElement("div"); div.className = "cell"; div.onclick = () => { playSound('click'); div.classList.toggle("active"); }; grid.appendChild(div); cells.push(div); }
 function resetGrid() { playSound('click'); cells.forEach(c => c.classList.remove("active")); document.getElementById("netResult").innerText = ""; }
 function showResult(text, color, isSuccess) { if(isSuccess) playSound('success'); else playSound('error'); const res = document.getElementById("netResult"); res.innerText = text; res.style.color = color; }
 
-const rawValidNets = [
-    [[0,1],[1,0],[1,1],[1,2],[2,1],[3,1]], [[0,1],[1,0],[1,1],[1,2],[2,1],[2,2]], [[0,1],[1,1],[2,0],[2,1],[3,1],[4,1]],
-    [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[2,0],[3,0],[4,0]], [[0,0],[1,0],[1,1],[2,1],[3,1],[4,1]],
-    [[0,1],[1,1],[2,1],[3,1],[3,0],[4,0]], [[0,0],[1,0],[2,0],[3,0],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]],
-    [[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]], [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]]
-];
-function normalize(coords){
-    let minX=Math.min(...coords.map(c=>c[0])), minY=Math.min(...coords.map(c=>c[1]));
-    return coords.map(c=>[c[0]-minX, c[1]-minY]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-}
+const rawValidNets = [[[0,1],[1,0],[1,1],[1,2],[2,1],[3,1]], [[0,1],[1,0],[1,1],[1,2],[2,1],[2,2]], [[0,1],[1,1],[2,0],[2,1],[3,1],[4,1]], [[0,0],[1,0],[2,0],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[2,0],[3,0],[4,0]], [[0,0],[1,0],[1,1],[2,1],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[3,0],[4,0]], [[0,0],[1,0],[2,0],[3,0],[3,1],[4,1]], [[0,1],[1,1],[2,1],[3,1],[4,1],[2,0]], [[0,0],[1,0],[2,0],[3,0],[4,0],[2,1]], [[0,0],[1,0],[1,1],[2,1],[3,1],[3,2]]];
+function normalize(coords){ let minX=Math.min(...coords.map(c=>c[0])), minY=Math.min(...coords.map(c=>c[1])); return coords.map(c=>[c[0]-minX, c[1]-minY]).sort((a, b) => a[0] - b[0] || a[1] - b[1]); }
 const validNetsStrings = rawValidNets.map(net => JSON.stringify(normalize(net)));
 function getSelectedCoords(){ let coords=[]; cells.forEach((c,i)=>{ if(c.classList.contains("active")) coords.push([i%6, Math.floor(i/6)]); }); return normalize(coords); }
 function rotate(coords){ return normalize(coords.map(c=>[-c[1],c[0]])); }
 function reflect(coords){ return normalize(coords.map(c=>[-c[0],c[1]])); }
-function matchesValid(coords){
-    let forms=[], current=coords;
-    for(let i=0; i<4; i++){ forms.push(current); forms.push(reflect(current)); current=rotate(current); }
-    return forms.some(form => validNetsStrings.includes(JSON.stringify(form)));
-}
-function checkNet(){
-    let coords=getSelectedCoords();
-    if(coords.length!==6){ showResult(`いま ${coords.length} コだよ。面は「6つ」必要です！`,"red",false); return; }
-    if(matchesValid(coords)){ showResult("⭕️ 大正解！正しい展開図です！立体になります！","green",true); }
-    else{ showResult("❌ おしい！この形は立体になりません","red",false); }
-}
+function matchesValid(coords){ let forms=[], current=coords; for(let i=0; i<4; i++){ forms.push(current); forms.push(reflect(current)); current=rotate(current); } return forms.some(form => validNetsStrings.includes(JSON.stringify(form))); }
+function checkNet(){ let coords=getSelectedCoords(); if(coords.length!==6){ showResult(`いま ${coords.length} コだよ。面は「6つ」必要です！`,"red",false); return; } if(matchesValid(coords)){ showResult("⭕️ 大正解！正しい展開図です！立体になります！","green",true); }else{ showResult("❌ おしい！この形は立体になりません","red",false); } }
 
 // ==========================================
-// ✏️ 問題データをHTMLに変換して表示する機能
+// ✏️ 問題データを自動で画面に作る機能
 // ==========================================
-
 function renderQuestions() {
     const container = document.getElementById('questions-container');
-    container.innerHTML = ''; // 一度空にする
+    container.innerHTML = ''; 
 
     questionsData.forEach(q => {
-        // 問題の枠とタイトル、画像を作成
         let html = `
         <div class="question-box">
             <h3>${q.title}</h3>
@@ -395,52 +279,36 @@ function renderQuestions() {
             <div class="svg-container">${q.svg}</div>
         `;
         
-        // 小問をループで作成
         q.subQuestions.forEach(sq => {
             html += `<p>${sq.text} `;
-            
-            // 入力タイプがセレクトボックスの場合
             if (sq.type === "select") {
                 html += `<select id="q_${sq.id}"><option value="">選んでね</option>`;
-                sq.options.forEach(opt => {
-                    html += `<option value="${opt}">点 ${opt}</option>`;
-                });
+                sq.options.forEach(opt => { html += `<option value="${opt}">点 ${opt}</option>`; });
                 html += `</select>`;
-            } 
-            // 数字入力の場合
-            else {
+            } else {
                 html += `<input type="number" id="q_${sq.id}"> ${sq.unit}`;
             }
-            
             html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
         });
 
-        // 答え合わせボタンを追加
         html += `<button onclick="checkDynamicQ(${q.id})">こたえあわせ</button></div>`;
-        
         container.innerHTML += html;
     });
 }
 
-// 答え合わせの実行
 function checkDynamicQ(questionId) {
-    // データ配列から該当する問題を探す
     const question = questionsData.find(q => q.id === questionId);
     if (!question) return;
 
     let allCorrect = true;
-
     question.subQuestions.forEach(sq => {
         const inputEl = document.getElementById(`q_${sq.id}`);
         const resEl = document.getElementById(`res_${sq.id}`);
         
         if (inputEl.value.trim() === sq.answer) {
-            resEl.innerHTML = "⭕️";
-            resEl.className = "feedback correct";
+            resEl.innerHTML = "⭕️"; resEl.className = "feedback correct";
         } else {
-            resEl.innerHTML = "❌";
-            resEl.className = "feedback incorrect";
-            allCorrect = false;
+            resEl.innerHTML = "❌"; resEl.className = "feedback incorrect"; allCorrect = false;
         }
     });
 
@@ -448,12 +316,11 @@ function checkDynamicQ(questionId) {
     else playSound('error');
 }
 
-// ページが読み込まれたら問題を描画する
+// ページが開いたときに問題を自動生成
 window.onload = () => {
     renderQuestions();
 };
 
 </script>
-
 </body>
 </html>
