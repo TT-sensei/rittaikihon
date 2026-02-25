@@ -25,7 +25,7 @@
     /* 立体シミュレーション周り */
     .controls { text-align: center; margin-bottom: 10px; }
     .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; margin-bottom: 20px; }
-    .scene { width: 300px; height: 300px; margin: 20px auto; perspective: 800px; cursor: grab; touch-action: none; /* スマホでのスクロール干渉を防ぐ */ }
+    .scene { width: 300px; height: 300px; margin: 20px auto; perspective: 800px; cursor: grab; touch-action: none; }
     .scene:active { cursor: grabbing; }
     .cube { position: relative; width: var(--w); height: var(--h); margin: auto; top: 50%; transform: translateY(-50%) rotateX(-25deg) rotateY(30deg); transform-style: preserve-3d; transition: width 0.5s, height 0.5s; }
     
@@ -51,7 +51,8 @@
     /* 問題セクション周り */
     .question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 20px; border-radius: 4px; user-select: text; }
     .question-box h3 { margin-top: 0; color: #E65100; }
-    input[type="number"], select { width: 100px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
+    .svg-container { text-align: center; margin: 15px 0; background: white; padding: 10px; border-radius: 8px;}
+    input[type="number"], select { width: 120px; padding: 8px; font-size: 1rem; border: 2px solid #ccc; border-radius: 4px; text-align: center; }
     .feedback { font-weight: bold; margin-left: 10px; } 
     .correct { color: #4CAF50; } .incorrect { color: #F44336; }
 </style>
@@ -104,7 +105,7 @@
     </div>
 
     <div id="prob" class="mode-section">
-        <h2>学習したことをテストしてみよう！</h2>
+        <h2 style="text-align:center;">✏️ ランダムクイズにちょうせん！</h2>
         <div id="questions-container">
             <p style="text-align:center; color:#666;">問題を読み込み中... (questions.js が必要です)</p>
         </div>
@@ -176,7 +177,6 @@ function setCuboid(){
     resetFaceCount();
 }
 
-// 指やマウスでぐるぐる回す機能 (Pointer Events に統一してバグ防止)
 const scene = document.getElementById("scene");
 const cube = document.getElementById("cube");
 let isDragging = false, startX, startY, currentRotX = -25, currentRotY = 30;
@@ -199,7 +199,6 @@ scene.addEventListener("pointerup", (e) => {
 const grid = document.getElementById("grid");
 let gridData = Array(6).fill().map(() => Array(6).fill(0));
 
-// 6x6のマス目を作る
 for(let y=0; y<6; y++) {
     for(let x=0; x<6; x++) {
         let div = document.createElement("div");
@@ -220,7 +219,6 @@ function resetGrid() {
     document.getElementById("netResult").innerText = "";
 }
 
-// 11種類の正しい立方体の展開図データ (余白を切り詰めた文字列化)
 const validPatterns = new Set([
     "0,1,0,0\n1,1,1,1\n0,1,0,0", "0,1,0,0\n1,1,1,1\n0,0,1,0", "0,1,0,0\n1,1,1,1\n0,0,0,1",
     "1,0,0,0\n1,1,1,1\n0,0,1,0", "1,0,0,0\n1,1,1,1\n0,0,0,1", "1,0,0,0\n1,1,1,1\n1,0,0,0",
@@ -228,7 +226,6 @@ const validPatterns = new Set([
     "1,1,0\n0,1,1\n0,0,1", "1,1,1,0,0\n0,0,1,1,1"
 ]);
 
-// ユーザーが塗ったマスから余白を削って文字列にする関数
 function extractPattern(grid2D) {
     let minX = 6, maxX = -1, minY = 6, maxY = -1, count = 0;
     for(let y=0; y<6; y++) {
@@ -240,7 +237,7 @@ function extractPattern(grid2D) {
             }
         }
     }
-    if(count !== 6) return null; // 6マスじゃなければダメ
+    if(count !== 6) return null; 
     
     let result = [];
     for(let y=minY; y<=maxY; y++) {
@@ -253,7 +250,6 @@ function extractPattern(grid2D) {
     return result.join("\n");
 }
 
-// 2次元配列を回転させる関数
 function rotateArray(arr) {
     let result = [];
     let rows = arr.length, cols = arr[0].length;
@@ -265,16 +261,13 @@ function rotateArray(arr) {
     return result;
 }
 
-// 2次元配列を左右反転させる関数
 function flipArray(arr) {
     return arr.map(row => [...row].reverse());
 }
 
-// パターンを2次元配列に変換して返す
 function stringToArray(str) {
     return str.split("\n").map(row => row.split(",").map(Number));
 }
-// 配列を文字列に戻す
 function arrayToString(arr) {
     return arr.map(row => row.join(",")).join("\n");
 }
@@ -291,7 +284,6 @@ function checkNet(){
         return;
     }
 
-    // 入力された形を回したり裏返したりして、正解リストにあるか探す
     let currentArr = stringToArray(baseStr);
     let isCorrect = false;
 
@@ -309,36 +301,88 @@ function checkNet(){
     }
 }
 
-// --- 外部ファイル(questions.js)からの問題読み込み ---
-function renderQuestions() {
+// ==========================================
+// ✏️ クイズ機能（1問ずつランダム表示）
+// ==========================================
+let shuffledQuestions = [];
+let currentQuestionIndex = 0;
+let correctCount = 0;
+
+function initQuiz() {
     const container = document.getElementById('questions-container');
     
     if (typeof questionsData === 'undefined' || questionsData.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:red;">問題ファイル (questions.js) が見つかりません。</p>';
+        container.innerHTML = '<p style="text-align:center; color:red; font-weight:bold;">問題が見つかりません。<br>questions.js の1行目が「const」になっているか確認してね！</p>';
         return;
     }
 
-    container.innerHTML = ''; 
-    questionsData.forEach(q => {
-        let html = `
-        <div class="question-box">
-            <h3>${q.title}</h3>
-            ${q.description ? `<p>${q.description}</p>` : ''}
-        `;
-        
-        q.subQuestions.forEach(sq => {
-            html += `<p>${sq.text} `;
-            html += `<input type="number" id="q_${sq.id}"> ${sq.unit}`;
-            html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
-        });
+    // 問題をランダムにシャッフルする
+    shuffledQuestions = [...questionsData].sort(() => Math.random() - 0.5);
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    
+    renderSingleQuestion();
+}
 
-        html += `<button onclick="checkDynamicQ(${q.id})">こたえあわせ</button></div>`;
-        container.innerHTML += html;
+function renderSingleQuestion() {
+    const container = document.getElementById('questions-container');
+    
+    // 全問終了したときの画面
+    if (currentQuestionIndex >= shuffledQuestions.length) {
+        container.innerHTML = `
+            <div class="question-box" style="text-align:center;">
+                <h2 style="color:#E65100;">🎉 おつかれさま！ 🎉</h2>
+                <p>ぜんぶの問題がおわったよ！</p>
+                <p style="font-size: 1.5rem; font-weight:bold; color: #4CAF50;">
+                    せいかい： ${correctCount} / ${shuffledQuestions.length} もん
+                </p>
+                <button onclick="initQuiz()" style="font-size: 1.1rem; padding: 10px 30px; margin-top:15px;">もういちど遊ぶ</button>
+            </div>
+        `;
+        return;
+    }
+
+    const q = shuffledQuestions[currentQuestionIndex];
+    let html = `
+    <div class="question-box">
+        <h4 style="color: #4CAF50; margin-top:0;">だい ${currentQuestionIndex + 1} もん <span style="font-size:0.9rem; color:#888;">(ぜんぶで ${shuffledQuestions.length} もん)</span></h4>
+        <h3 style="margin-top: 5px;">${q.title}</h3>
+        ${q.description ? `<p>${q.description}</p>` : ''}
+        
+        ${q.svg ? `<div class="svg-container">${q.svg}</div>` : ''}
+    `;
+    
+    q.subQuestions.forEach(sq => {
+        html += `<p style="font-weight:bold;">${sq.text} </p><p>`;
+        
+        // 選択問題と数字入力を自動切り替え
+        if (sq.type === "select") {
+            html += `<select id="q_${sq.id}"><option value="">えらんでね</option>`;
+            sq.options.forEach(opt => { 
+                html += `<option value="${opt}">${opt}</option>`; 
+            });
+            html += `</select>`;
+            if (sq.unit) html += ` ${sq.unit}`;
+        } else {
+            html += `<input type="number" id="q_${sq.id}">`;
+            if (sq.unit) html += ` ${sq.unit}`;
+        }
+        
+        html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
     });
+
+    // ボタンのエリア
+    html += `
+        <div style="text-align:center; margin-top:20px;" id="action-area">
+            <button onclick="checkDynamicQ(${q.id})" style="font-size: 1.1rem; padding: 10px 30px;">こたえあわせ</button>
+        </div>
+    </div>`;
+    
+    container.innerHTML = html;
 }
 
 function checkDynamicQ(questionId) {
-    const question = questionsData.find(q => q.id === questionId);
+    const question = shuffledQuestions.find(q => q.id === questionId);
     if (!question) return;
 
     let allCorrect = true;
@@ -353,11 +397,36 @@ function checkDynamicQ(questionId) {
         }
     });
 
-    if(allCorrect) playSound('success'); else playSound('error');
+    const actionArea = document.getElementById('action-area');
+
+    if(allCorrect) {
+        playSound('success');
+        correctCount++; // 正解数を増やす
+        // 全問正解したら「つぎへ」ボタンに切り替わる
+        actionArea.innerHTML = `<button onclick="nextQuestion()" style="background:#4CAF50; font-size: 1.2rem; padding: 10px 30px; box-shadow: 0 4px 0 #388E3C;">つぎの問題へ ➡️</button>`;
+    } else {
+        playSound('error');
+        // 間違えた時は「もういちど」直せるようにしつつ、難しければ「パス」できるようにする
+        if (!document.getElementById('skip-btn')) {
+            actionArea.innerHTML += `<br><button id="skip-btn" onclick="skipQuestion()" style="background:#999; margin-top:15px; box-shadow: 0 4px 0 #666;">パスしてつぎへ ➡️</button>`;
+        }
+    }
 }
 
-// 画面が読み込まれたら問題を表示する
-window.addEventListener("DOMContentLoaded", renderQuestions);
+function nextQuestion() {
+    playSound('click');
+    currentQuestionIndex++;
+    renderSingleQuestion();
+}
+
+function skipQuestion() {
+    playSound('click');
+    currentQuestionIndex++;
+    renderSingleQuestion(); // 正解数を増やさずに次の問題へ
+}
+
+// 画面が読み込まれたらクイズを準備する
+window.addEventListener("DOMContentLoaded", initQuiz);
 
 </script>
 </body>
