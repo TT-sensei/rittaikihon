@@ -12,7 +12,6 @@
     body { font-family: 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
     header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     
-    /* タブ周り */
     .tabs { display: flex; justify-content: center; background-color: #388E3C; }
     .tab-btn { background: none; border: none; color: white; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: 0.3s; margin: 0; }
     .tab-btn.active { background-color: var(--secondary); border-bottom: 4px solid #E65100; }
@@ -22,7 +21,6 @@
     .mode-section.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* 立体シミュレーション周り（★ここを完璧に修正しました！） */
     .controls { text-align: center; margin-bottom: 10px; }
     .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; margin-bottom: 20px; }
     
@@ -30,12 +28,9 @@
     .scene:active { cursor: grabbing; }
     
     .cube { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-style: preserve-3d; transform: rotateX(-25deg) rotateY(30deg); }
-    
-    /* 変形アニメーションを滑らかにしました */
     .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: background 0.3s, color 0.3s, width 0.5s, height 0.5s, transform 0.5s; }
     .face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
     
-    /* すべての面の中心をビシッと合わせる指定 */
     .front  { width: var(--w); height: var(--h); transform: translate(-50%, -50%) translateZ(calc(var(--d) / 2)); }
     .back   { width: var(--w); height: var(--h); transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--d) / 2)); }
     .top    { width: var(--w); height: var(--d); transform: translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2)); }
@@ -46,13 +41,11 @@
     button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold; }
     button:active { transform: translateY(4px); box-shadow: none; }
     
-    /* 展開図周り */
     .paint-grid { display: grid; grid-template-columns: repeat(6, 40px); gap: 3px; justify-content: center; margin-top: 20px; }
     .cell { width: 40px; height: 40px; background: #ddd; cursor: pointer; border-radius: 4px; transition: background 0.2s; } 
     .cell.active { background: #4CAF50; }
     .result { font-size: 1.2rem; margin-top: 15px; font-weight: bold; text-align: center; min-height: 30px; }
     
-    /* 問題セクション周り */
     .question-box { background: #fff8e1; border-left: 6px solid var(--secondary); padding: 20px; margin-bottom: 20px; border-radius: 4px; user-select: text; }
     .question-box h3 { margin-top: 0; color: #E65100; }
     .svg-container { text-align: center; margin: 15px 0; background: white; padding: 10px; border-radius: 8px;}
@@ -60,6 +53,9 @@
     .feedback { font-weight: bold; margin-left: 10px; } 
     .correct { color: #4CAF50; } .incorrect { color: #F44336; }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
 
@@ -106,6 +102,10 @@
             <button onclick="resetGrid()" style="background:#555; box-shadow:0 4px 0 #333;">ぜんぶ消す</button>
         </div>
         <div class="result" id="netResult"></div>
+
+        <div id="three-container" style="width: 100%; max-width: 450px; height: 350px; margin: 20px auto; display: none; position: relative; border: 3px solid #FF9800; border-radius: 8px; background: #fff8e1; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <div id="success-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(244, 67, 54, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">⚪︎</div>
+        </div>
     </div>
 
     <div id="prob" class="mode-section">
@@ -192,7 +192,6 @@ scene.addEventListener("pointerdown", (e) => {
 scene.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
     currentRotY += (e.clientX - startX) * 0.5; currentRotX -= (e.clientY - startY) * 0.5;
-    // ★ドラッグ回転のプログラムもよりスムーズに修正！
     cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
     startX = e.clientX; startY = e.clientY;
 });
@@ -222,6 +221,7 @@ function resetGrid() {
     document.querySelectorAll('.cell').forEach(c => c.classList.remove("active"));
     gridData = Array(6).fill().map(() => Array(6).fill(0));
     document.getElementById("netResult").innerText = "";
+    document.getElementById("three-container").style.display = "none"; // アニメも消す
 }
 
 const validPatterns = new Set([
@@ -243,13 +243,10 @@ function extractPattern(grid2D) {
         }
     }
     if(count !== 6) return null; 
-    
     let result = [];
     for(let y=minY; y<=maxY; y++) {
         let row = [];
-        for(let x=minX; x<=maxX; x++) {
-            row.push(grid2D[y][x]);
-        }
+        for(let x=minX; x<=maxX; x++) { row.push(grid2D[y][x]); }
         result.push(row.join(","));
     }
     return result.join("\n");
@@ -266,16 +263,117 @@ function rotateArray(arr) {
     return result;
 }
 
-function flipArray(arr) {
-    return arr.map(row => [...row].reverse());
+function flipArray(arr) { return arr.map(row => [...row].reverse()); }
+function stringToArray(str) { return str.split("\n").map(row => row.split(",").map(Number)); }
+function arrayToString(arr) { return arr.map(row => row.join(",")).join("\n"); }
+
+
+// 🌟 追加：ユーザーが塗った展開図から3Dを動的に作ってアニメーションする魔法の関数
+let threeRenderer, threeScene, threeCamera, animationId;
+function startDynamic3DAnimation() {
+    const container = document.getElementById('three-container');
+    container.style.display = 'block';
+    
+    // 中身をリセット
+    container.innerHTML = '<div id="success-mark" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 160px; color: rgba(244, 67, 54, 0.9); font-weight: bold; display: none; pointer-events: none; z-index: 10; text-shadow: 3px 3px 6px rgba(0,0,0,0.2);">⚪︎</div>';
+    if (animationId) cancelAnimationFrame(animationId);
+
+    // Three.jsの準備
+    threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    threeRenderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(threeRenderer.domElement);
+
+    threeScene = new THREE.Scene();
+    threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    threeCamera.position.set(0, 7, 10);
+    threeCamera.lookAt(0, 0, 0);
+
+    threeScene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    dirLight.position.set(5, 10, 7);
+    threeScene.add(dirLight);
+
+    // タイルの設定
+    const s = 2; 
+    const mat = new THREE.MeshPhongMaterial({ color: 0x4CAF50, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x1B5E20, linewidth: 2 });
+
+    function createMesh() {
+        const geo = new THREE.PlaneGeometry(s, s);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), lineMat));
+        return mesh;
+    }
+
+    // 塗られたマスを探して、一番真ん中に近いものを「底面（基準）」にする
+    let cells = [];
+    for(let y=0; y<6; y++) for(let x=0; x<6; x++) if(gridData[y][x]) cells.push({x, y});
+    
+    let cx = cells.reduce((sum, c) => sum + c.x, 0) / 6;
+    let cy = cells.reduce((sum, c) => sum + c.y, 0) / 6;
+    cells.sort((a,b) => (Math.pow(a.x-cx,2)+Math.pow(a.y-cy,2)) - (Math.pow(b.x-cx,2)+Math.pow(b.y-cy,2)));
+    let rootCell = cells[0];
+
+    // 木構造を解析して展開図を3D空間に組み立てるアルゴリズム
+    let visited = new Set([`${rootCell.x},${rootCell.y}`]);
+    let queue = [ {cell: rootCell, parentMesh: null, dir: null} ];
+    let rootMesh = createMesh();
+    rootMesh.rotation.x = -Math.PI/2; // 床に寝かせる
+    threeScene.add(rootMesh);
+    
+    let hingeGroups = [];
+
+    while(queue.length > 0) {
+        let {cell, parentMesh, dir} = queue.shift();
+        let currentMesh = rootMesh;
+        
+        if (parentMesh) {
+            let hinge = new THREE.Group();
+            currentMesh = createMesh();
+            
+            // どこにくっついているかでヒンジ（蝶番）の位置と曲がる方向を変える
+            if (dir === 'right') { 
+                hinge.position.set(s/2, 0, 0); currentMesh.position.set(s/2, 0, 0); hinge.userData.rot = {y: -Math.PI/2, x:0};
+            } else if (dir === 'left') { 
+                hinge.position.set(-s/2, 0, 0); currentMesh.position.set(-s/2, 0, 0); hinge.userData.rot = {y: Math.PI/2, x:0};
+            } else if (dir === 'up') { 
+                hinge.position.set(0, s/2, 0); currentMesh.position.set(0, s/2, 0); hinge.userData.rot = {x: Math.PI/2, y:0};
+            } else if (dir === 'down') { 
+                hinge.position.set(0, -s/2, 0); currentMesh.position.set(0, -s/2, 0); hinge.userData.rot = {x: -Math.PI/2, y:0};
+            }
+            hinge.add(currentMesh); parentMesh.add(hinge); hingeGroups.push(hinge);
+        }
+
+        const neighbors = [ {dx: 1, dy: 0, dir: 'right'}, {dx: -1, dy: 0, dir: 'left'}, {dx: 0, dy: -1, dir: 'up'}, {dx: 0, dy: 1, dir: 'down'} ];
+        for(let n of neighbors) {
+            let nx = cell.x + n.dx, ny = cell.y + n.dy;
+            if (nx>=0 && nx<6 && ny>=0 && ny<6 && gridData[ny][nx] && !visited.has(`${nx},${ny}`)) {
+                visited.add(`${nx},${ny}`);
+                queue.push({cell: {x:nx, y:ny}, parentMesh: currentMesh, dir: n.dir});
+            }
+        }
+    }
+
+    const renderLoop = () => { animationId = requestAnimationFrame(renderLoop); threeRenderer.render(threeScene, threeCamera); };
+    renderLoop();
+
+    // アニメーション実行
+    const tl = gsap.timeline({
+        onComplete: () => {
+            document.getElementById('success-mark').style.display = 'block';
+            playSound('success'); // 完成時にもう一度鳴らす
+        }
+    });
+
+    // 見やすいように全体を少し回転
+    tl.to(rootMesh.rotation, { z: Math.PI/4, duration: 1, ease: "power2.inOut" }, 0);
+
+    // 面を順番にパタパタ折りたたむ
+    hingeGroups.forEach((hinge, index) => {
+        tl.to(hinge.rotation, { x: hinge.userData.rot.x, y: hinge.userData.rot.y, duration: 1.2, ease: "power2.inOut" }, index * 0.15);
+    });
 }
 
-function stringToArray(str) {
-    return str.split("\n").map(row => row.split(",").map(Number));
-}
-function arrayToString(arr) {
-    return arr.map(row => row.join(",")).join("\n");
-}
 
 function checkNet(){
     let baseStr = extractPattern(gridData);
@@ -285,6 +383,7 @@ function checkNet(){
         let count = gridData.flat().filter(v => v === 1).length;
         res.innerText = `いま ${count} コだよ。ぴったり6マス塗ってね。`;
         res.style.color = "#F44336";
+        document.getElementById('three-container').style.display = 'none';
         playSound('error');
         return;
     }
@@ -300,14 +399,23 @@ function checkNet(){
     }
 
     if(isCorrect){
-        res.innerText = "⭕️ 正解！組み立てると立方体になります！"; res.style.color = "#4CAF50"; playSound('success');
+        res.innerHTML = "⭕️ 正解！組み立ててみよう！<br><span style='font-size:0.9rem; color:#666;'>※アニメーションが始まります</span>"; 
+        res.style.color = "#4CAF50"; 
+        playSound('success');
+        
+        // 🌟 正解したら、アニメーションを開始！
+        setTimeout(startDynamic3DAnimation, 500);
+
     } else {
-        res.innerText = "❌ ざんねん…この形は立体になりません。"; res.style.color = "#F44336"; playSound('error');
+        res.innerText = "❌ ざんねん…この形は立体になりません。"; 
+        res.style.color = "#F44336"; 
+        document.getElementById('three-container').style.display = 'none';
+        playSound('error');
     }
 }
 
 // ==========================================
-// ✏️ クイズ機能（1問ずつランダム表示）
+// ✏️ クイズ機能（変更なし）
 // ==========================================
 let shuffledQuestions = [];
 let currentQuestionIndex = 0;
@@ -315,86 +423,47 @@ let correctCount = 0;
 
 function initQuiz() {
     const container = document.getElementById('questions-container');
-    
     if (typeof questionsData === 'undefined' || questionsData.length === 0) {
         container.innerHTML = '<p style="text-align:center; color:red; font-weight:bold;">問題が見つかりません。<br>questions.js の1行目が「const」になっているか確認してね！</p>';
         return;
     }
-
-    // 問題をランダムにシャッフルする
     shuffledQuestions = [...questionsData].sort(() => Math.random() - 0.5);
-    currentQuestionIndex = 0;
-    correctCount = 0;
-    
+    currentQuestionIndex = 0; correctCount = 0;
     renderSingleQuestion();
 }
 
 function renderSingleQuestion() {
     const container = document.getElementById('questions-container');
-    
-    // 全問終了したときの画面
     if (currentQuestionIndex >= shuffledQuestions.length) {
-        container.innerHTML = `
-            <div class="question-box" style="text-align:center;">
-                <h2 style="color:#E65100;">🎉 おつかれさま！ 🎉</h2>
-                <p>ぜんぶの問題がおわったよ！</p>
-                <p style="font-size: 1.5rem; font-weight:bold; color: #4CAF50;">
-                    せいかい： ${correctCount} / ${shuffledQuestions.length} もん
-                </p>
-                <button onclick="initQuiz()" style="font-size: 1.1rem; padding: 10px 30px; margin-top:15px;">もういちど遊ぶ</button>
-            </div>
-        `;
+        container.innerHTML = `<div class="question-box" style="text-align:center;"><h2 style="color:#E65100;">🎉 おつかれさま！ 🎉</h2><p>ぜんぶの問題がおわったよ！</p><p style="font-size: 1.5rem; font-weight:bold; color: #4CAF50;">せいかい： ${correctCount} / ${shuffledQuestions.length} もん</p><button onclick="initQuiz()" style="font-size: 1.1rem; padding: 10px 30px; margin-top:15px;">もういちど遊ぶ</button></div>`;
         return;
     }
-
     const q = shuffledQuestions[currentQuestionIndex];
-    let html = `
-    <div class="question-box">
-        <h4 style="color: #4CAF50; margin-top:0;">だい ${currentQuestionIndex + 1} もん <span style="font-size:0.9rem; color:#888;">(ぜんぶで ${shuffledQuestions.length} もん)</span></h4>
-        <h3 style="margin-top: 5px;">${q.title}</h3>
-        ${q.description ? `<p>${q.description}</p>` : ''}
-        
-        ${q.svg ? `<div class="svg-container">${q.svg}</div>` : ''}
-    `;
+    let html = `<div class="question-box"><h4 style="color: #4CAF50; margin-top:0;">だい ${currentQuestionIndex + 1} もん <span style="font-size:0.9rem; color:#888;">(ぜんぶで ${shuffledQuestions.length} もん)</span></h4><h3 style="margin-top: 5px;">${q.title}</h3>${q.description ? `<p>${q.description}</p>` : ''}${q.svg ? `<div class="svg-container">${q.svg}</div>` : ''}`;
     
     q.subQuestions.forEach(sq => {
         html += `<p style="font-weight:bold;">${sq.text} </p><p>`;
-        
-        // 選択問題と数字入力を自動切り替え
         if (sq.type === "select") {
             html += `<select id="q_${sq.id}"><option value="">えらんでね</option>`;
-            sq.options.forEach(opt => { 
-                html += `<option value="${opt}">${opt}</option>`; 
-            });
-            html += `</select>`;
-            if (sq.unit) html += ` ${sq.unit}`;
+            sq.options.forEach(opt => { html += `<option value="${opt}">${opt}</option>`; });
+            html += `</select>`; if (sq.unit) html += ` ${sq.unit}`;
         } else {
-            html += `<input type="number" id="q_${sq.id}">`;
-            if (sq.unit) html += ` ${sq.unit}`;
+            html += `<input type="number" id="q_${sq.id}">`; if (sq.unit) html += ` ${sq.unit}`;
         }
-        
         html += ` <span id="res_${sq.id}" class="feedback"></span></p>`;
     });
 
-    // ボタンのエリア
-    html += `
-        <div style="text-align:center; margin-top:20px;" id="action-area">
-            <button onclick="checkDynamicQ(${q.id})" style="font-size: 1.1rem; padding: 10px 30px;">こたえあわせ</button>
-        </div>
-    </div>`;
-    
+    html += `<div style="text-align:center; margin-top:20px;" id="action-area"><button onclick="checkDynamicQ(${q.id})" style="font-size: 1.1rem; padding: 10px 30px;">こたえあわせ</button></div></div>`;
     container.innerHTML = html;
 }
 
 function checkDynamicQ(questionId) {
     const question = shuffledQuestions.find(q => q.id === questionId);
     if (!question) return;
-
     let allCorrect = true;
     question.subQuestions.forEach(sq => {
         const inputEl = document.getElementById(`q_${sq.id}`);
         const resEl = document.getElementById(`res_${sq.id}`);
-        
         if (inputEl.value.trim() === sq.answer) {
             resEl.innerHTML = "⭕️ 正解！"; resEl.className = "feedback correct";
         } else {
@@ -403,34 +472,19 @@ function checkDynamicQ(questionId) {
     });
 
     const actionArea = document.getElementById('action-area');
-
     if(allCorrect) {
-        playSound('success');
-        correctCount++; // 正解数を増やす
-        // 全問正解したら「つぎへ」ボタンに切り替わる
+        playSound('success'); correctCount++;
         actionArea.innerHTML = `<button onclick="nextQuestion()" style="background:#4CAF50; font-size: 1.2rem; padding: 10px 30px; box-shadow: 0 4px 0 #388E3C;">つぎの問題へ ➡️</button>`;
     } else {
         playSound('error');
-        // 間違えた時は「もういちど」直せるようにしつつ、難しければ「パス」できるようにする
         if (!document.getElementById('skip-btn')) {
             actionArea.innerHTML += `<br><button id="skip-btn" onclick="skipQuestion()" style="background:#999; margin-top:15px; box-shadow: 0 4px 0 #666;">パスしてつぎへ ➡️</button>`;
         }
     }
 }
 
-function nextQuestion() {
-    playSound('click');
-    currentQuestionIndex++;
-    renderSingleQuestion();
-}
-
-function skipQuestion() {
-    playSound('click');
-    currentQuestionIndex++;
-    renderSingleQuestion(); // 正解数を増やさずに次の問題へ
-}
-
-// 画面が読み込まれたらクイズを準備する
+function nextQuestion() { playSound('click'); currentQuestionIndex++; renderSingleQuestion(); }
+function skipQuestion() { playSound('click'); currentQuestionIndex++; renderSingleQuestion(); }
 window.addEventListener("DOMContentLoaded", initQuiz);
 
 </script>
