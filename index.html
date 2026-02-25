@@ -22,22 +22,26 @@
     .mode-section.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* 立体シミュレーション周り */
+    /* 立体シミュレーション周り（★ここを完璧に修正しました！） */
     .controls { text-align: center; margin-bottom: 10px; }
     .desc-text { text-align: center; font-size: 1.1rem; color: #E65100; font-weight: bold; margin-bottom: 20px; }
-    .scene { width: 300px; height: 300px; margin: 20px auto; perspective: 800px; cursor: grab; touch-action: none; }
-    .scene:active { cursor: grabbing; }
-    .cube { position: relative; width: var(--w); height: var(--h); margin: auto; top: 50%; transform: translateY(-50%) rotateX(-25deg) rotateY(30deg); transform-style: preserve-3d; transition: width 0.5s, height 0.5s; }
     
-    .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: background 0.3s, color 0.3s; }
+    .scene { position: relative; width: 300px; height: 300px; margin: 20px auto; perspective: 800px; cursor: grab; touch-action: none; }
+    .scene:active { cursor: grabbing; }
+    
+    .cube { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-style: preserve-3d; transform: rotateX(-25deg) rotateY(30deg); }
+    
+    /* 変形アニメーションを滑らかにしました */
+    .face { position: absolute; border: 2px solid #333; background: rgba(100, 150, 255, 0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: #333; transition: background 0.3s, color 0.3s, width 0.5s, height 0.5s, transform 0.5s; }
     .face.counted { background: rgba(255, 100, 100, 0.9); color: white; }
     
-    .front  { width: var(--w); height: var(--h); transform: translateZ(calc(var(--d) / 2)); }
-    .back   { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); }
-    .top    { width: var(--w); height: var(--d); transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); }
-    .bottom { width: var(--w); height: var(--d); transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
-    .left   { width: var(--d); height: var(--h); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
-    .right  { width: var(--d); height: var(--h); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+    /* すべての面の中心をビシッと合わせる指定 */
+    .front  { width: var(--w); height: var(--h); transform: translate(-50%, -50%) translateZ(calc(var(--d) / 2)); }
+    .back   { width: var(--w); height: var(--h); transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--d) / 2)); }
+    .top    { width: var(--w); height: var(--d); transform: translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2)); }
+    .bottom { width: var(--w); height: var(--d); transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
+    .left   { width: var(--d); height: var(--h); transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+    .right  { width: var(--d); height: var(--h); transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2)); }
     
     button { padding: 10px 20px; margin: 5px; font-size: 1rem; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #E65100; font-weight: bold; }
     button:active { transform: translateY(4px); box-shadow: none; }
@@ -188,7 +192,8 @@ scene.addEventListener("pointerdown", (e) => {
 scene.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
     currentRotY += (e.clientX - startX) * 0.5; currentRotX -= (e.clientY - startY) * 0.5;
-    cube.style.transform = `translateY(-50%) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+    // ★ドラッグ回転のプログラムもよりスムーズに修正！
+    cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
     startX = e.clientX; startY = e.clientY;
 });
 scene.addEventListener("pointerup", (e) => {
